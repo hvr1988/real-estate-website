@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real Estate</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <div>
+        <h1>{{ broker.name }}</h1>
+        <p>{{ broker.phone }} | {{ broker.address }}</p>
+    </div>
+    <a class="btn" href="/add-property">+ Add Property</a>
+</div>
+
+<!-- Property Grid -->
+<div class="grid">
+{% for p in properties %}
+    <div class="card">
+        <img src="/static/uploads/{{ p.image }}">
+        <div class="card-body">
+            <h3>{{ p.title }}</h3>
+            <p class="price">₹ {{ "{:,.0f}".format(p.price) }}</p>
+            <span class="badge {{ p.category|lower }}">
+                {{ p.category }}
+            </span>
+        </div>
+    </div>
+{% endfor %}
+</div>
+
+{% if not properties %}
+<p class="empty">No properties listed yet.</p>
+{% endif %}
+
+</body>
+</html>
