@@ -1,39 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Real Estate</title>
+    <title>Vajrai Properties</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
 
-<!-- Header -->
-<div class="header">
+<!-- NAVBAR -->
+<div class="navbar">
+    <h2>🏠 Vajrai Properties</h2>
     <div>
-        <h1>{{ broker.name }}</h1>
-        <p>{{ broker.phone }} | {{ broker.address }}</p>
+        <a href="/">Home</a>
+        <a href="/login">Admin</a>
+        <a href="https://wa.me/919999999999" target="_blank">WhatsApp</a>
     </div>
-    <a class="btn" href="/add-property">+ Add Property</a>
 </div>
 
-<!-- Property Grid -->
-<div class="grid">
-{% for p in properties %}
+<!-- HERO SECTION -->
+<div class="hero">
+    <h1>Find Your Dream Property</h1>
+    <p>Buy | Sell | Rent Properties in Mumbai</p>
+</div>
+
+<!-- PROPERTY LIST -->
+<h2 class="section-title">Featured Properties</h2>
+
+<div class="property-container">
+    {% for p in properties %}
     <div class="card">
-        <img src="/static/uploads/{{ p.image }}">
-        <div class="card-body">
-            <h3>{{ p.title }}</h3>
-            <p class="price">₹ {{ "{:,.0f}".format(p.price) }}</p>
-            <span class="badge {{ p.category|lower }}">
-                {{ p.category }}
-            </span>
-        </div>
+        <img src="/static/uploads/{{p.image}}" width="250">
+        <h3>{{p.title}}</h3>
+        <p>📍 {{p.location}}</p>
+        <p>💰 ₹ {{p.price}}</p>
     </div>
-{% endfor %}
+    {% endfor %}
 </div>
 
-{% if not properties %}
-<p class="empty">No properties listed yet.</p>
-{% endif %}
+<!-- ABOUT -->
+<div class="about">
+    <h2>About Vajrai Properties</h2>
+    <p>
+    We help you buy, sell and rent properties with trust and transparency.
+    Contact us for best deals in Mumbai real estate.
+    </p>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p>© 2026 Vajrai Properties | All Rights Reserved</p>
+</div>
 
 </body>
 </html>
