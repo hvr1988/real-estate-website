@@ -160,4 +160,5 @@ def public_properties(db: Session = Depends(get_db)):
         """
 
     html += "</body></html>"
+
     return html
