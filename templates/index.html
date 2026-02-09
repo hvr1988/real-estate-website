@@ -1,54 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Vajrai Properties</title>
-    <link rel="stylesheet" href="/static/style.css">
+<title>Vajrai Properties | Virar-Vasai Real Estate</title>
+<link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
 <!-- NAVBAR -->
 <div class="navbar">
-    <h2>🏠 Vajrai Properties</h2>
-    <div>
-        <a href="/">Home</a>
-        <a href="/login">Admin</a>
-        <a href="https://wa.me/919999999999" target="_blank">WhatsApp</a>
-    </div>
+<h2>🏠 Vajrai Properties</h2>
+<div>
+<a href="/">Home</a>
+<a href="/properties">Properties</a>
+<a href="https://wa.me/91XXXXXXXXXX" target="_blank">WhatsApp</a>
+<a href="/admin">Admin</a>
+</div>
 </div>
 
-<!-- HERO SECTION -->
+<!-- HERO -->
 <div class="hero">
-    <h1>Find Your Dream Property</h1>
-    <p>Buy | Sell | Rent Properties in Mumbai</p>
+<h1>Find Your Dream Home in Virar – Vasai</h1>
+<p>Buy | Sell | Rent | New Projects | Resale</p>
+<a class="btn" href="/properties">View Properties</a>
 </div>
 
-<!-- PROPERTY LIST -->
-<h2 class="section-title">Featured Properties</h2>
+<!-- SERVICES -->
+<h2 class="section">Our Services</h2>
 
-<div class="property-container">
-    {% for p in properties %}
-    <div class="card">
-        <img src="/static/uploads/{{p.image}}" width="250">
-        <h3>{{p.title}}</h3>
-        <p>📍 {{p.location}}</p>
-        <p>💰 ₹ {{p.price}}</p>
-    </div>
-    {% endfor %}
+<div class="services">
+
+<div class="card">
+<h3>🏢 Buy Property</h3>
+<p>Best deals in Virar-Vasai flats & shops</p>
 </div>
 
-<!-- ABOUT -->
-<div class="about">
-    <h2>About Vajrai Properties</h2>
-    <p>
-    We help you buy, sell and rent properties with trust and transparency.
-    Contact us for best deals in Mumbai real estate.
-    </p>
+<div class="card">
+<h3>💰 Sell Property</h3>
+<p>Get best price for your property</p>
+</div>
+
+<div class="card">
+<h3>🏠 Rent Property</h3>
+<p>Flats & shops for rent available</p>
+</div>
+
+<div class="card">
+<h3>🏗 New Projects</h3>
+<p>Builder & investment projects</p>
+</div>
+
+</div>
+
+<!-- CONTACT -->
+<div class="contact">
+<h2>Contact Vajrai Properties</h2>
+<p>Virar - Vasai Real Estate Consultant</p>
+<a class="whatsapp" href="https://wa.me/91XXXXXXXXXX">Chat on WhatsApp</a>
 </div>
 
 <!-- FOOTER -->
 <div class="footer">
-    <p>© 2026 Vajrai Properties | All Rights Reserved</p>
+<p>© 2026 Vajrai Properties | Virar-Vasai</p>
 </div>
 
 </body>
