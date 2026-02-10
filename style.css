@@ -1,0 +1,161 @@
+/* 1. IMPORT GOOGLE FONTS */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* 2. GLOBAL RESET & TYPOGRAPHY */
+body {
+    font-family: 'Inter', sans-serif; /* Cleaner, modern font */
+    margin: 0;
+    background-color: #f8fafc; /* Slightly cooler grey for a tech/finance feel */
+    color: #334155; /* Dark grey text is easier to read than pure black */
+    line-height: 1.6;
+}
+
+/* 3. NAVIGATION BAR */
+.navbar {
+    background: #0f172a; /* Keep your dark blue */
+    padding: 15px 5%; /* Use % so it looks good on all screens */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    position: sticky; /* Keeps nav visible when scrolling */
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar a {
+    color: #cbd5e1; /* Off-white is softer */
+    margin-left: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.3s ease; /* Smooth color change */
+}
+
+.navbar a:hover {
+    color: white; /* Bright white on hover */
+}
+
+/* 4. HERO SECTION */
+.hero {
+    /* Added a dark overlay gradient so text is always readable */
+    background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
+                url("https://images.unsplash.com/photo-1560518883-ce09059eeffa");
+    background-position: center;
+    background-size: cover;
+    height: 500px; /* Increased height for impact */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.hero h1 {
+    font-size: 3rem; /* Make the main title big */
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    max-width: 600px;
+    opacity: 0.9;
+}
+
+/* 5. BUTTONS */
+.btn {
+    background: #f97316; /* Professional Orange */
+    padding: 12px 30px;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px; /* Slightly softer corners */
+    font-weight: 600;
+    transition: all 0.3s ease; /* Animate the hover */
+    display: inline-block;
+    border: 1px solid transparent;
+}
+
+.btn:hover {
+    background: #ea580c; /* Darker orange on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); /* Glow effect */
+}
+
+/* 6. SECTIONS */
+.section {
+    text-align: center;
+    padding: 80px 20px; /* More breathing room */
+    max-width: 1200px; /* Prevents stretching on huge screens */
+    margin: 0 auto; /* Centers the section */
+}
+
+.section h2 {
+    font-size: 2rem;
+    color: #0f172a;
+    margin-bottom: 40px;
+}
+
+/* 7. CARDS (SERVICES) */
+.services {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px; /* Replaces margin to create even space */
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    width: 280px;
+    /* Professional "Soft" Shadow */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+                0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #e2e8f0; /* Subtle border */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Lifts up when you mouse over */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* 8. CONTACT & FOOTER */
+.contact {
+    background: #0f172a;
+    color: white;
+    text-align: center;
+    padding: 80px 20px;
+    margin-top: 60px;
+}
+
+.whatsapp {
+    background: #22c55e; /* Vibrant Green */
+    padding: 12px 30px;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px; /* Pill shape is trendy for chat apps */
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.3s;
+}
+
+.whatsapp:hover {
+    background: #16a34a;
+}
+
+.footer {
+    background: #020617; /* Even darker than nav for contrast */
+    color: #94a3b8;
+    text-align: center;
+    padding: 30px;
+    font-size: 0.9rem;
+    border-top: 1px solid #1e293b;
+}
