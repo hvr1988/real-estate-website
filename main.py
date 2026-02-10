@@ -4,11 +4,25 @@ from sqlalchemy.orm import Session
 from database import engine, SessionLocal
 import models
 from auth import router as auth_router # Moved import to top for better style
+from fastapi import File, UploadFile
+import shutil
+import os
+
+app = FastAPI()
 
 # Create tables
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+# create upload folder if not exists
+if not os.path.exists("static"):
+    os.mkdir("static")
+
+if not os.path.exists("static/uploads"):
+    os.mkdir("static/uploads")
+
+from fastapi.staticfiles import StaticFiles
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 # Include the auth router
 app.include_router(auth_router)
@@ -44,7 +58,7 @@ def home(request: Request):
 
 # ---------------- ADD PROPERTY PAGE (FORM) ----------------
 
-# ---------------- ADMIN DASHBOARD ----------------
+# ---------------- ADMIN ADD PROPERTY PAGE ----------------
 @app.get("/add-property", response_class=HTMLResponse)
 def add_property_form():
 
@@ -66,7 +80,7 @@ def add_property_form():
 
     <h2>🏠 Admin Panel - Add Property</h2>
 
-    <form action="/add-property" method="post">
+    <form action="/add-property" method="post" enctype="multipart/form-data">
 
     Title:<br>
     <input name="title" placeholder="1BHK in Virar"><br>
@@ -77,8 +91,8 @@ def add_property_form():
     Price:<br>
     <input name="price" placeholder="35 Lakh"><br>
 
-    Image URL:<br>
-    <input name="image" placeholder="Paste image link"><br>
+    Image Upload:<br>
+    <input type="file" name="image"><br>
 
     Description:<br>
     <textarea name="description" placeholder="Near station"></textarea><br><br>
@@ -94,29 +108,37 @@ def add_property_form():
     </html>
     """
 
+
+
 # ---------------- SAVE PROPERTY (POST) ----------------
+
 @app.post("/add-property", response_class=HTMLResponse)
 def save_property(
     title: str = Form(...), 
     location: str = Form(...),
     price: str = Form(...), 
     description: str = Form(...),
-    image: str = Form(...), 
+    image: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    # 1. Create the model object
+
+    # Save uploaded file
+    file_path = f"static/uploads/{image.filename}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(image.file, buffer)
+
+    image_url = "/" + file_path.replace("\\", "/")
+
     new_property = models.Property(
         title=title,
         location=location,
         price=price,
         description=description,
-        image=image
+        image=image_url
     )
 
-    # 2. Add to DB and Commit
     db.add(new_property)
     db.commit()
-    db.refresh(new_property) # Optional: refreshes the object with new ID
 
     return f"<h3>Property '{title}' Added Successfully</h3><br><a href='/view-property'>View All</a>"
 
