@@ -1,33 +1,30 @@
-from fastapi import FastAPI, Form, Depends
+from fastapi import FastAPI, Form, Depends, File, UploadFile
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from database import engine, SessionLocal
 import models
-from auth import router as auth_router # Moved import to top for better style
-from fastapi import File, UploadFile
-import shutil
-import os
+from auth import router as auth_router
+import shutil, os
+
+# ---------------- CREATE TABLES ----------------
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Create tables
-models.Base.metadata.create_all(bind=engine)
-
-# create upload folder if not exists
+# ---------------- STATIC FOLDER ----------------
 if not os.path.exists("static"):
     os.mkdir("static")
 
 if not os.path.exists("static/uploads"):
     os.mkdir("static/uploads")
 
-from fastapi.staticfiles import StaticFiles
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
-# Include the auth router
+# ---------------- INCLUDE LOGIN ROUTER ----------------
 app.include_router(auth_router)
 
-# DB connection dependency
+# ---------------- DB ----------------
 def get_db():
     db = SessionLocal()
     try:
@@ -36,125 +33,78 @@ def get_db():
         db.close()
 
 # ---------------- HOME PAGE ----------------
-
-from fastapi import Request
-from fastapi.templating import Jinja2Templates
-
-import os
-templates = Jinja2Templates(directory="templates") if os.path.exists("templates") else None
-
-
 @app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    if templates:
-        return templates.TemplateResponse("index.html", {"request": request})
-    else:
-        return """
-        <h2>🏠 Vajrai Properties Running</h2>
-        <a href='/properties'>View Properties</a><br>
-        <a href='/login'>Admin Login</a>
-        """
-# ---------------- ADMIN DASHBOARD ----------------
-@app.get("/dashboard", response_class=HTMLResponse)
-def admin_dashboard(db: Session = Depends(get_db)):
-
-    total = db.query(models.Property).count()
-
-    return f"""
+def home():
+    return """
     <html>
     <head>
-    <title>Admin Dashboard</title>
+    <title>Vajrai Properties | Virar-Vasai</title>
     </head>
 
-    <body style="font-family:Arial;background:#f4f6f8;padding:40px">
+    <body style="font-family:Arial;background:#f4f6f8">
 
-    <h1>🏢 Vajrai Properties Admin</h1>
-    <hr>
+    <h1 style="background:#0d6efd;color:white;padding:20px">
+    🏠 Vajrai Properties – Virar Vasai
+    </h1>
 
-    <h3>Total Properties: {total}</h3>
-    <br>
-
-    <a href='/add-property'>➕ Add Property</a><br><br>
-    <a href='/view-property'>📋 View All Properties</a><br><br>
-    <a href='/properties'>🌐 Open Website</a><br><br>
+    <center>
+    <h2>Find Your Dream Property</h2>
+    <a href='/properties' style="padding:10px 20px;background:green;color:white;text-decoration:none">
+    View Properties
+    </a>
+    <br><br>
+    <a href='/login'>🔐 Admin Login</a>
+    </center>
 
     </body>
     </html>
     """
 
-
-# ---------------- ADD PROPERTY PAGE (FORM) ----------------
-
-# ---------------- ADMIN ADD PROPERTY PAGE ----------------
+# ---------------- ADD PROPERTY PAGE ----------------
 @app.get("/add-property", response_class=HTMLResponse)
 def add_property_form():
-
     return """
-    <html>
-    <head>
-    <title>Admin Panel - Vajrai Properties</title>
-
-    <style>
-    body{font-family:Arial;background:#f4f6f8;padding:40px}
-    h2{color:#0d6efd}
-    input,textarea{width:300px;padding:8px;margin:8px}
-    button{background:#0d6efd;color:white;padding:10px 20px;border:none}
-    a{display:block;margin-top:20px}
-    </style>
-    </head>
-
-    <body>
-
-    <h2>🏠 Admin Panel - Add Property</h2>
+    <h2>🏠 Add Property</h2>
 
     <form action="/add-property" method="post" enctype="multipart/form-data">
 
     Title:<br>
-    <input name="title" placeholder="1BHK in Virar"><br>
+    <input name="title"><br><br>
 
     Location:<br>
-    <input name="location" placeholder="Virar West"><br>
+    <input name="location"><br><br>
 
     Price:<br>
-    <input name="price" placeholder="35 Lakh"><br>
+    <input name="price"><br><br>
 
-    Image Upload:<br>
-    <input type="file" name="image"><br>
+    Upload Image:<br>
+    <input type="file" name="image"><br><br>
 
     Description:<br>
-    <textarea name="description" placeholder="Near station"></textarea><br><br>
+    <textarea name="description"></textarea><br><br>
 
     <button type="submit">Add Property</button>
-
     </form>
 
-    <a href="/view-property">📋 View All Properties</a>
-    <a href="/">🏠 Back to Website</a>
-
-    </body>
-    </html>
+    <br><a href="/view-property">View All</a>
     """
 
-
-
-# ---------------- SAVE PROPERTY (POST) ----------------
-
+# ---------------- SAVE PROPERTY ----------------
 @app.post("/add-property", response_class=HTMLResponse)
 def save_property(
-    title: str = Form(...), 
+    title: str = Form(...),
     location: str = Form(...),
-    price: str = Form(...), 
+    price: str = Form(...),
     description: str = Form(...),
     image: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
+    filepath = f"static/uploads/{image.filename}"
 
-    # Save uploaded file
-    file_path = f"static/uploads/{image.filename}"
-    with open(file_path, "wb") as buffer:
+    with open(filepath, "wb") as buffer:
         shutil.copyfileobj(image.file, buffer)
 
-    image_url = "/" + file_path.replace("\\", "/")
+    image_url = "/" + filepath
 
     new_property = models.Property(
         title=title,
@@ -167,114 +117,65 @@ def save_property(
     db.add(new_property)
     db.commit()
 
-    return f"<h3>Property '{title}' Added Successfully</h3><br><a href='/view-property'>View All</a>"
+    return "<h3>✅ Property Added</h3><a href='/view-property'>View</a>"
 
-# ---------------- VIEW ALL PROPERTIES ----------------
-
+# ---------------- VIEW ADMIN ----------------
 @app.get("/view-property", response_class=HTMLResponse)
 def view_property(db: Session = Depends(get_db)):
-
     properties = db.query(models.Property).all()
 
-    html = """
-    <h1>🏢 All Properties (Admin)</h1>
-    <a href='/add-property'>➕ Add New</a> |
-    <a href='/'>🏠 Website</a>
-    <hr>
-    """
+    html = "<h1>Admin Properties</h1><hr>"
 
     for p in properties:
         html += f"""
-        <div style='border:1px solid gray;
-        padding:15px;margin:15px;width:300px;
-        display:inline-block;background:#fff;
-        box-shadow:0px 0px 8px gray'>
-
-        <img src='{p.image}' width='100%'><br><br>
-
-        <h3>{p.title}</h3>
-        📍 {p.location}<br>
-        💰 {p.price}<br><br>
-
+        <div style='border:1px solid gray;padding:10px;margin:10px;width:300px'>
+        <img src='{p.image}' width='250'><br>
+        <b>{p.title}</b><br>
+        {p.location}<br>
+        {p.price}<br>
         {p.description}<br><br>
 
-        
-        <a href='https://api.whatsapp.com/send?phone=917862895672&text=I am interested in {p.title}'
-        style='background:green;color:white;
-        padding:8px 12px;text-decoration:none'>
-        WhatsApp Client
-        </a>
-        <br><br>
-
-        <a href='/delete-property/{p.id}'
-        style='color:red;font-weight:bold'>
-        ❌ Delete
-        </a>
-
+        <a href='/delete-property/{p.id}' style='color:red'>Delete</a>
         </div>
         """
 
+    html += "<br><a href='/add-property'>Add New</a>"
     return html
 
-
-# ---------------- DELETE PROPERTY ----------------
+# ---------------- DELETE ----------------
 @app.get("/delete-property/{pid}", response_class=HTMLResponse)
-def delete_property(pid: int, db: Session = Depends(get_db)):
-    property_to_delete = db.query(models.Property).filter(models.Property.id == pid).first()
-
-    if property_to_delete:
-        db.delete(property_to_delete)
+def delete_property(pid:int, db:Session=Depends(get_db)):
+    prop = db.query(models.Property).filter(models.Property.id==pid).first()
+    if prop:
+        db.delete(prop)
         db.commit()
-        return "<h3>Property Deleted</h3><br><a href='/view-property'>Back to List</a>"
-    
-    return "<h3>Property Not Found</h3><br><a href='/view-property'>Back to List</a>"
+    return "<h3>Deleted</h3><a href='/view-property'>Back</a>"
 
 # ---------------- PUBLIC WEBSITE ----------------
 @app.get("/properties", response_class=HTMLResponse)
-def public_properties(db: Session = Depends(get_db)):
-
+def public_site(db: Session = Depends(get_db)):
     properties = db.query(models.Property).all()
 
     html = """
-    <html>
-    <head>
-    <title>Vajrai Properties | Virar-Vasai Real Estate</title>
-    </head>
-
-    <body style="font-family:Arial;background:#f4f6f8">
-
-    <h1 style="background:#0d6efd;color:white;padding:15px">
-    🏠 Dream Properties
+    <h1 style='background:#0d6efd;color:white;padding:15px'>
+    🏠 Vajrai Properties - Virar Vasai
     </h1>
-
-    <center>
-    <h2>Find Your Perfect Home</h2>
-    </center>
-    <hr>
     """
 
     for p in properties:
         html += f"""
-        <div style='background:white;border-radius:10px;
-        padding:15px;margin:20px;box-shadow:0px 0px 10px gray;
-        width:300px;display:inline-block'>
-
-        <img src='{p.image}' width='100%' style='border-radius:10px'><br><br>
-
+        <div style='border:1px solid gray;padding:15px;margin:20px;width:300px;display:inline-block'>
+        <img src='{p.image}' width='100%'><br>
         <h3>{p.title}</h3>
         📍 {p.location}<br>
-        💰 <b>{p.price}</b><br><br>
-
+        💰 {p.price}<br><br>
         {p.description}<br><br>
 
-        <a href='https://api.whatsapp.com/send?phone=917862895672&text=I am interested in {p.title}'
-        style='background:green;color:white;padding:10px;
-        text-decoration:none;border-radius:5px'>
-        📞 WhatsApp Now
+        <a href='https://wa.me/917862895672?text=I want {p.title}'
+        style='background:green;color:white;padding:10px;text-decoration:none'>
+        WhatsApp
         </a>
-
         </div>
         """
 
-    html += "</body></html>"
     return html
