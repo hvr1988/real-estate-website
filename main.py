@@ -22,7 +22,7 @@ def get_db():
         db.close()
 
 # ---------------- HOME PAGE ----------------
-from fastapi.responses import HTMLResponse
+
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
@@ -33,18 +33,55 @@ def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 # ---------------- ADD PROPERTY PAGE (FORM) ----------------
+
+# ---------------- ADMIN DASHBOARD ----------------
 @app.get("/add-property", response_class=HTMLResponse)
 def add_property_form():
+
     return """
-    <h2>Add Property</h2>
+    <html>
+    <head>
+    <title>Admin Panel - Vajrai Properties</title>
+
+    <style>
+    body{font-family:Arial;background:#f4f6f8;padding:40px}
+    h2{color:#0d6efd}
+    input,textarea{width:300px;padding:8px;margin:8px}
+    button{background:#0d6efd;color:white;padding:10px 20px;border:none}
+    a{display:block;margin-top:20px}
+    </style>
+    </head>
+
+    <body>
+
+    <h2>🏠 Admin Panel - Add Property</h2>
+
     <form action="/add-property" method="post">
-        Title: <input name="title"><br><br>
-        Location: <input name="location"><br><br>
-        Price: <input name="price"><br><br>
-        Description: <input name="description"><br><br>
-        Image URL: <input name="image"><br><br>
-        <button type="submit">Save Property</button>
+
+    Title:<br>
+    <input name="title" placeholder="1BHK in Virar"><br>
+
+    Location:<br>
+    <input name="location" placeholder="Virar West"><br>
+
+    Price:<br>
+    <input name="price" placeholder="35 Lakh"><br>
+
+    Image URL:<br>
+    <input name="image" placeholder="Paste image link"><br>
+
+    Description:<br>
+    <textarea name="description" placeholder="Near station"></textarea><br><br>
+
+    <button type="submit">Add Property</button>
+
     </form>
+
+    <a href="/view-property">📋 View All Properties</a>
+    <a href="/">🏠 Back to Website</a>
+
+    </body>
+    </html>
     """
 
 # ---------------- SAVE PROPERTY (POST) ----------------
@@ -74,31 +111,51 @@ def save_property(
     return f"<h3>Property '{title}' Added Successfully</h3><br><a href='/view-property'>View All</a>"
 
 # ---------------- VIEW ALL PROPERTIES ----------------
+
 @app.get("/view-property", response_class=HTMLResponse)
 def view_property(db: Session = Depends(get_db)):
-    # 1. Get all properties
+
     properties = db.query(models.Property).all()
 
-    html = "<h1>🏢 All Properties</h1><hr>"
-    
-    # --- FIX STARTS HERE ---
-    # The loop and return must be INSIDE the function (indented)
+    html = """
+    <h1>🏢 All Properties (Admin)</h1>
+    <a href='/add-property'>➕ Add New</a> |
+    <a href='/'>🏠 Website</a>
+    <hr>
+    """
+
     for p in properties:
         html += f"""
-        <div style='border:1px solid black;padding:10px;margin:10px;width:300px'>
-            <h3>{p.title} (ID: {p.id})</h3>
-            <img src='{p.image}' width='250'><br>
-            <b>Location:</b> {p.location}<br>
-            <b>Price:</b> {p.price}<br>
-            <b>Description:</b> {p.description}<br><br>
-            <a href='/delete-property/{p.id}' style='color:red'>❌ Delete</a>
+        <div style='border:1px solid gray;
+        padding:15px;margin:15px;width:300px;
+        display:inline-block;background:#fff;
+        box-shadow:0px 0px 8px gray'>
+
+        <img src='{p.image}' width='100%'><br><br>
+
+        <h3>{p.title}</h3>
+        📍 {p.location}<br>
+        💰 {p.price}<br><br>
+
+        {p.description}<br><br>
+
+        <a href='https://wa.me/917862895672?text=I want {p.title}'
+        style='background:green;color:white;
+        padding:8px 12px;text-decoration:none'>
+        WhatsApp Client
+        </a>
+        <br><br>
+
+        <a href='/delete-property/{p.id}'
+        style='color:red;font-weight:bold'>
+        ❌ Delete
+        </a>
+
         </div>
         """
 
-    html += "<br><a href='/add-property'>➕ Add New Property</a>"
-    
-    return html 
-    # --- FIX ENDS HERE ---
+    return html
+
 
 # ---------------- DELETE PROPERTY ----------------
 @app.get("/delete-property/{pid}", response_class=HTMLResponse)
@@ -150,7 +207,7 @@ def public_properties(db: Session = Depends(get_db)):
 
         {p.description}<br><br>
 
-        <a href='https://wa.me/919999999999?text=I am interested in {p.title}'
+        <a href='https://wa.me/917862895672?text=I am interested in {p.title}'
         style='background:green;color:white;padding:10px;
         text-decoration:none;border-radius:5px'>
         📞 WhatsApp Now
@@ -160,5 +217,4 @@ def public_properties(db: Session = Depends(get_db)):
         """
 
     html += "</body></html>"
-
     return html
