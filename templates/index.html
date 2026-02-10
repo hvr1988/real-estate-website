@@ -1,67 +1,206 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Vajrai Properties | Virar-Vasai Real Estate</title>
-<link rel="stylesheet" href="/static/style.css">
+    <title>Vajrai Properties | Virar-Vasai Real Estate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body{
+            font-family: Arial;
+            margin:0;
+            background:#f4f6f9;
+        }
+
+        /* HEADER */
+        .header{
+            background:#0d6efd;
+            color:white;
+            padding:18px;
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .nav{
+            background:white;
+            padding:12px;
+            box-shadow:0px 2px 5px gray;
+        }
+
+        .nav a{
+            margin-right:20px;
+            text-decoration:none;
+            color:black;
+            font-weight:bold;
+        }
+
+        /* HERO */
+        .hero{
+            padding:60px;
+            background:linear-gradient(to right,#0d6efd,#4da3ff);
+            color:white;
+            text-align:center;
+        }
+
+        .hero h1{
+            font-size:40px;
+        }
+
+        .btn{
+            background:green;
+            color:white;
+            padding:12px 20px;
+            text-decoration:none;
+            border-radius:6px;
+            font-weight:bold;
+        }
+
+        /* SECTION */
+        .section{
+            padding:40px;
+            text-align:center;
+        }
+
+        /* PROPERTY CARDS */
+        .card{
+            background:white;
+            width:280px;
+            display:inline-block;
+            margin:15px;
+            border-radius:12px;
+            box-shadow:0px 0px 10px gray;
+            overflow:hidden;
+        }
+
+        .card img{
+            width:100%;
+            height:180px;
+            object-fit:cover;
+        }
+
+        .card-body{
+            padding:15px;
+            text-align:left;
+        }
+
+        .price{
+            color:#0d6efd;
+            font-size:18px;
+            font-weight:bold;
+        }
+
+        /* SERVICES */
+        .service{
+            width:250px;
+            display:inline-block;
+            margin:20px;
+        }
+
+        /* FOOTER */
+        .footer{
+            background:#0d6efd;
+            color:white;
+            padding:25px;
+            text-align:center;
+            margin-top:40px;
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar">
-<h2>🏠 Vajrai Properties</h2>
-<div>
+<!-- HEADER -->
+<div class="header">
+🏠 Vajrai Properties – Virar Vasai
+</div>
+
+<div class="nav">
 <a href="/">Home</a>
 <a href="/properties">Properties</a>
-<a href="https://wa.me/91XXXXXXXXXX" target="_blank">WhatsApp</a>
-<a href="/admin">Admin</a>
-</div>
+<a href="/login">Admin</a>
+<a href="https://wa.me/917862895672">WhatsApp</a>
 </div>
 
 <!-- HERO -->
 <div class="hero">
 <h1>Find Your Dream Home in Virar – Vasai</h1>
-<p>Buy | Sell | Rent | New Projects | Resale</p>
-<a class="btn" href="/properties">View Properties</a>
+<p>Buy | Sell | Rent | New Projects</p>
+<br>
+<a class="btn" href="https://wa.me/917862895672">📞 Chat on WhatsApp</a>
 </div>
 
 <!-- SERVICES -->
-<h2 class="section">Our Services</h2>
+<div class="section">
+<h2>Our Services</h2>
 
-<div class="services">
-
-<div class="card">
+<div class="service">
 <h3>🏢 Buy Property</h3>
-<p>Best deals in Virar-Vasai flats & shops</p>
+<p>Best flats & shops in Virar-Vasai</p>
 </div>
 
-<div class="card">
+<div class="service">
 <h3>💰 Sell Property</h3>
 <p>Get best price for your property</p>
 </div>
 
-<div class="card">
+<div class="service">
 <h3>🏠 Rent Property</h3>
-<p>Flats & shops for rent available</p>
+<p>1RK, 1BHK, 2BHK available</p>
+</div>
+
+<div class="service">
+<h3>🏗 New Projects</h3>
+<p>Builder & investment deals</p>
+</div>
+
+</div>
+
+<!-- FEATURED PROPERTIES -->
+<div class="section">
+<h2>Featured Properties</h2>
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994">
+<div class="card-body">
+<h3>1BHK in Virar West</h3>
+<p>📍 Near Station</p>
+<p class="price">₹35 Lakh</p>
+<a class="btn" href="https://wa.me/917862895672?text=I am interested in 1BHK Virar">WhatsApp</a>
+</div>
 </div>
 
 <div class="card">
-<h3>🏗 New Projects</h3>
-<p>Builder & investment projects</p>
+<img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be">
+<div class="card-body">
+<h3>2BHK in Vasai</h3>
+<p>📍 Prime Location</p>
+<p class="price">₹55 Lakh</p>
+<a class="btn" href="https://wa.me/917862895672?text=I am interested in 2BHK Vasai">WhatsApp</a>
+</div>
+</div>
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716">
+<div class="card-body">
+<h3>Shop for Sale</h3>
+<p>📍 Nalasopara</p>
+<p class="price">₹25 Lakh</p>
+<a class="btn" href="https://wa.me/917862895672?text=I am interested in Shop">WhatsApp</a>
+</div>
 </div>
 
 </div>
 
 <!-- CONTACT -->
-<div class="contact">
+<div class="section">
 <h2>Contact Vajrai Properties</h2>
 <p>Virar - Vasai Real Estate Consultant</p>
-<a class="whatsapp" href="https://wa.me/91XXXXXXXXXX">Chat on WhatsApp</a>
+<br>
+<a class="btn" href="https://wa.me/917862895672">Chat on WhatsApp</a>
 </div>
 
 <!-- FOOTER -->
 <div class="footer">
-<p>© 2026 Vajrai Properties | Virar-Vasai</p>
+© 2026 Vajrai Properties | Virar-Vasai Real Estate
 </div>
 
 </body>
