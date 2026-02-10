@@ -1,43 +1,35 @@
-from fastapi import APIRouter, Depends, Form
+from fastapi import APIRouter, Form
 from fastapi.responses import HTMLResponse
-from sqlalchemy.orm import Session
-from database import SessionLocal
-import models
 
 router = APIRouter()
 
-# DB connection
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# CHANGE USERNAME & PASSWORD HERE
+ADMIN_USER = "vajrai"
+ADMIN_PASS = "12345"
 
-# Login page
-@router.get("/admin", response_class=HTMLResponse)
-def login_form():
+# ---------------- LOGIN PAGE ----------------
+@router.get("/login", response_class=HTMLResponse)
+def login_page():
     return """
-    <h2>Admin Login</h2>
+    <h2>🔐 Admin Login - Vajrai Properties</h2>
     <form method='post'>
-    Username: <input name='username'><br><br>
-    Password: <input name='password' type='password'><br><br>
+    Username:<br>
+    <input name='username'><br><br>
+    Password:<br>
+    <input type='password' name='password'><br><br>
     <button type='submit'>Login</button>
     </form>
     """
 
-# Login check
-@router.post("/admin", response_class=HTMLResponse)
-def login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    user = db.query(models.Admin).filter(models.Admin.username == username).first()
-
-    if user and user.password == password:
+# ---------------- LOGIN CHECK ----------------
+@router.post("/login", response_class=HTMLResponse)
+def login_check(username: str = Form(...), password: str = Form(...)):
+    if username == ADMIN_USER and password == ADMIN_PASS:
         return """
-        <h1>🏢 Admin Dashboard</h1>
-        <hr>
+        <h2>Welcome Admin</h2>
         <a href='/add-property'>➕ Add Property</a><br><br>
         <a href='/view-property'>📋 View Properties</a><br><br>
-        <a href='/'>🌐 Visit Website</a>
+        <a href='/'>🏠 Go Website</a>
         """
     else:
-        return "<h3>Invalid login</h3>"
+        return "<h3>❌ Wrong login</h3><a href='/login'>Try again</a>"
