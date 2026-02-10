@@ -117,14 +117,32 @@ def save_property(
     db.add(new_property)
     db.commit()
 
-    return "<h3>✅ Property Added</h3><a href='/view-property'>View</a>"
+    return """
+    <h2>✅ Property Added Successfully</h2>
+    <br>
+
+    <a href='/add-property'>➕ Add Another Property</a><br><br>
+    <a href='/view-property'>📋 View All Properties</a><br><br>
+    <a href='/dashboard'>📊 Admin Dashboard</a><br><br>
+    <a href='/'>🏠 Home Page</a>
+    """
+
 
 # ---------------- VIEW ADMIN ----------------
 @app.get("/view-property", response_class=HTMLResponse)
 def view_property(db: Session = Depends(get_db)):
     properties = db.query(models.Property).all()
 
-    html = "<h1>Admin Properties</h1><hr>"
+    html = """
+    <h1>🏢 Admin Properties</h1>
+
+    <a href='/dashboard'>📊 Dashboard</a> |
+    <a href='/add-property'>➕ Add Property</a> |
+    <a href='/'>🏠 Website</a>
+
+    <hr>
+    """
+
 
     for p in properties:
         html += f"""
@@ -149,7 +167,15 @@ def delete_property(pid:int, db:Session=Depends(get_db)):
     if prop:
         db.delete(prop)
         db.commit()
-    return "<h3>Deleted</h3><a href='/view-property'>Back</a>"
+    return """
+    <h2>❌ Property Deleted</h2><br>
+
+    <a href='/view-property'>📋 Back to Properties</a><br><br>
+    <a href='/add-property'>➕ Add Property</a><br><br>
+    <a href='/dashboard'>📊 Dashboard</a><br><br>
+    <a href='/'>🏠 Home</a>
+    """
+
 
 # ---------------- PUBLIC WEBSITE ----------------
 @app.get("/properties", response_class=HTMLResponse)
@@ -179,3 +205,19 @@ def public_site(db: Session = Depends(get_db)):
         """
 
     return html
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard(db: Session = Depends(get_db)):
+    total = db.query(models.Property).count()
+
+    return f"""
+    <h1>🏢 Vajrai Admin Dashboard</h1>
+    <hr>
+
+    <h3>Total Properties: {total}</h3><br>
+
+    <a href='/add-property'>➕ Add Property</a><br><br>
+    <a href='/view-property'>📋 View Properties</a><br><br>
+    <a href='/properties'>🌐 Open Website</a><br><br>
+    <a href='/'>🏠 Home</a>
+    """
