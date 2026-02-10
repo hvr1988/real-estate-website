@@ -3,7 +3,6 @@ from fastapi.responses import HTMLResponse
 
 router = APIRouter()
 
-# CHANGE USERNAME & PASSWORD HERE
 ADMIN_USER = "vajrai"
 ADMIN_PASS = "12345"
 
