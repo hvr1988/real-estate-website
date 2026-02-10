@@ -1,7 +1,3 @@
-from auth import router as auth_router
-app = FastAPI()
-app.include_router(auth_router)
-
 from fastapi import APIRouter, Form
 from fastapi.responses import HTMLResponse
 
@@ -10,7 +6,6 @@ router = APIRouter()
 ADMIN_USER = "vajrai"
 ADMIN_PASS = "12345"
 
-# ---------------- LOGIN PAGE ----------------
 @router.get("/login", response_class=HTMLResponse)
 def login_page():
     return """
@@ -24,7 +19,6 @@ def login_page():
     </form>
     """
 
-# ---------------- LOGIN CHECK ----------------
 @router.post("/login", response_class=HTMLResponse)
 def login_check(username: str = Form(...), password: str = Form(...)):
     if username == ADMIN_USER and password == ADMIN_PASS:
