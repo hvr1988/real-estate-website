@@ -1,3 +1,7 @@
+from auth import router as auth_router
+app = FastAPI()
+app.include_router(auth_router)
+
 from fastapi import APIRouter, Form
 from fastapi.responses import HTMLResponse
 

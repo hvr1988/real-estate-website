@@ -26,11 +26,21 @@ def get_db():
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
-templates = Jinja2Templates(directory="templates")
+import os
+templates = Jinja2Templates(directory="templates") if os.path.exists("templates") else None
+
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    if templates:
+        return templates.TemplateResponse("index.html", {"request": request})
+    else:
+        return """
+        <h2>🏠 Vajrai Properties Running</h2>
+        <a href='/properties'>View Properties</a><br>
+        <a href='/login'>Admin Login</a>
+        """
+
 
 # ---------------- ADD PROPERTY PAGE (FORM) ----------------
 
@@ -139,7 +149,8 @@ def view_property(db: Session = Depends(get_db)):
 
         {p.description}<br><br>
 
-        <a href='https://wa.me/917862895672?text=I want {p.title}'
+        
+        <a href='https://api.whatsapp.com/send?phone=917862895672&text=I am interested in {p.title}'
         style='background:green;color:white;
         padding:8px 12px;text-decoration:none'>
         WhatsApp Client
@@ -178,7 +189,7 @@ def public_properties(db: Session = Depends(get_db)):
     html = """
     <html>
     <head>
-    <title>Dream Properties</title>
+    <title>Vajrai Properties | Virar-Vasai Real Estate</title>
     </head>
 
     <body style="font-family:Arial;background:#f4f6f8">
@@ -207,7 +218,7 @@ def public_properties(db: Session = Depends(get_db)):
 
         {p.description}<br><br>
 
-        <a href='https://wa.me/917862895672?text=I am interested in {p.title}'
+        <a href='https://api.whatsapp.com/send?phone=917862895672&text=I am interested in {p.title}'
         style='background:green;color:white;padding:10px;
         text-decoration:none;border-radius:5px'>
         📞 WhatsApp Now
