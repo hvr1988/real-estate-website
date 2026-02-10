@@ -54,6 +54,33 @@ def home(request: Request):
         <a href='/properties'>View Properties</a><br>
         <a href='/login'>Admin Login</a>
         """
+# ---------------- ADMIN DASHBOARD ----------------
+@app.get("/dashboard", response_class=HTMLResponse)
+def admin_dashboard(db: Session = Depends(get_db)):
+
+    total = db.query(models.Property).count()
+
+    return f"""
+    <html>
+    <head>
+    <title>Admin Dashboard</title>
+    </head>
+
+    <body style="font-family:Arial;background:#f4f6f8;padding:40px">
+
+    <h1>🏢 Vajrai Properties Admin</h1>
+    <hr>
+
+    <h3>Total Properties: {total}</h3>
+    <br>
+
+    <a href='/add-property'>➕ Add Property</a><br><br>
+    <a href='/view-property'>📋 View All Properties</a><br><br>
+    <a href='/properties'>🌐 Open Website</a><br><br>
+
+    </body>
+    </html>
+    """
 
 
 # ---------------- ADD PROPERTY PAGE (FORM) ----------------

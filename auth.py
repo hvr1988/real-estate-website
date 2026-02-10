@@ -6,6 +6,7 @@ router = APIRouter()
 ADMIN_USER = "vajrai"
 ADMIN_PASS = "12345"
 
+# ---------------- LOGIN PAGE ----------------
 @router.get("/login", response_class=HTMLResponse)
 def login_page():
     return """
@@ -19,14 +20,18 @@ def login_page():
     </form>
     """
 
+# ---------------- LOGIN CHECK ----------------
 @router.post("/login", response_class=HTMLResponse)
 def login_check(username: str = Form(...), password: str = Form(...)):
     if username == ADMIN_USER and password == ADMIN_PASS:
         return """
-        <h2>Welcome Admin</h2>
+        <h2>🏢 Vajrai Properties Admin Panel</h2>
+        <hr>
+
+        <a href='/dashboard'>📊 Open Dashboard</a><br><br>
         <a href='/add-property'>➕ Add Property</a><br><br>
         <a href='/view-property'>📋 View Properties</a><br><br>
-        <a href='/'>🏠 Go Website</a>
+        <a href='/properties'>🌐 Open Website</a><br><br>
         """
     else:
         return "<h3>❌ Wrong login</h3><a href='/login'>Try again</a>"
