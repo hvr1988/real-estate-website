@@ -179,45 +179,148 @@ def delete_property(pid:int, db:Session=Depends(get_db)):
 
 # ---------------- PUBLIC WEBSITE ----------------
 @app.get("/properties", response_class=HTMLResponse)
-def public_site(db: Session = Depends(get_db)):
+def public_properties(db: Session = Depends(get_db)):
+
     properties = db.query(models.Property).all()
 
     html = """
-    <h1 style='background:#0d6efd;color:white;padding:15px'>
-    🏠 Vajrai Properties - Virar Vasai
-    </h1>
+    <html>
+    <head>
+    <title>Vajrai Properties | Virar-Vasai</title>
+
+    <style>
+    body{
+        font-family:Arial;
+        background:#f5f7fb;
+        margin:0;
+        padding:0;
+    }
+
+    .topbar{
+        background:linear-gradient(90deg,#0d6efd,#0047ab);
+        color:white;
+        padding:18px;
+        font-size:26px;
+        font-weight:bold;
+        text-align:center;
+        letter-spacing:1px;
+    }
+
+    .container{
+        padding:40px;
+    }
+
+    .card{
+        background:white;
+        width:320px;
+        border-radius:12px;
+        display:inline-block;
+        margin:20px;
+        box-shadow:0 6px 18px rgba(0,0,0,0.15);
+        transition:0.3s;
+        vertical-align:top;
+    }
+
+    .card:hover{
+        transform:scale(1.03);
+        box-shadow:0 10px 25px rgba(0,0,0,0.25);
+    }
+
+    .card img{
+        width:100%;
+        height:220px;
+        object-fit:cover;
+        border-radius:12px 12px 0 0;
+    }
+
+    .card-body{
+        padding:15px;
+    }
+
+    .title{
+        font-size:20px;
+        font-weight:bold;
+        margin-bottom:8px;
+    }
+
+    .loc{
+        color:#666;
+        margin-bottom:6px;
+    }
+
+    .price{
+        color:#0d6efd;
+        font-size:18px;
+        font-weight:bold;
+        margin-bottom:10px;
+    }
+
+    .desc{
+        font-size:14px;
+        margin-bottom:15px;
+    }
+
+    .btn{
+        background:#25D366;
+        color:white;
+        padding:10px 18px;
+        text-decoration:none;
+        border-radius:6px;
+        font-weight:bold;
+        display:inline-block;
+    }
+
+    .footer{
+        background:#111;
+        color:#ccc;
+        padding:30px;
+        text-align:center;
+        margin-top:40px;
+        font-size:14px;
+    }
+    </style>
+    </head>
+
+    <body>
+
+    <div class='topbar'>
+    🏠 Vajrai Properties – Virar | Vasai
+    </div>
+
+    <div class='container'>
     """
 
     for p in properties:
         html += f"""
-        <div style='border:1px solid gray;padding:15px;margin:20px;width:300px;display:inline-block'>
-        <img src='{p.image}' width='100%'><br>
-        <h3>{p.title}</h3>
-        📍 {p.location}<br>
-        💰 {p.price}<br><br>
-        {p.description}<br><br>
+        <div class='card'>
+            <img src='{p.image}'>
 
-        <a href='https://wa.me/917862895672?text=I want {p.title}'
-        style='background:green;color:white;padding:10px;text-decoration:none'>
-        WhatsApp
-        </a>
+            <div class='card-body'>
+                <div class='title'>{p.title}</div>
+                <div class='loc'>📍 {p.location}</div>
+                <div class='price'>💰 {p.price}</div>
+                <div class='desc'>{p.description}</div>
+
+                <a class='btn'
+                href='https://api.whatsapp.com/send?phone=918999338010&text=I am interested in {p.title}'
+                target='_blank'>
+                WhatsApp Now
+                </a>
+            </div>
         </div>
         """
 
-    return html
+    html += """
 
-@app.get("/dashboard", response_class=HTMLResponse)
-def dashboard(db: Session = Depends(get_db)):
-    total = db.query(models.Property).count()
+    </div>
 
-    return f"""
-    <h1>🏢 Vajrai Admin Dashboard</h1>
-    <hr>
+    <div class='footer'>
+    © 2026 Vajrai Properties | Owner: Pankaj Nikam | 📞 8999338010  
+    Serving Virar - Vasai Only
+    </div>
 
-    <h3>Total Properties: {total}</h3><br>
-
-    <a href='/add-property'>➕ Add Property</a><br><br>
-    <a href='/view-property'>📋 View Properties</a><br><br>
-    <a href='/properties'>🌐 Open Website</a><br><br>
-    <a href='/'>🏠 Home</a>
+    </body>
+    </html>
     """
+
+    return html
