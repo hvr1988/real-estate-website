@@ -3,24 +3,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Get database URL from Render environment
+# 🔴 Use Neon database from Render ENV
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# For safety if not found
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL not found. Check Render environment variables.")
-
-# Fix for postgres connection
-DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://")
-
 engine = create_engine(DATABASE_URL)
-
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 Base = declarative_base()
-
-print("✅ Connected to PERMANENT Neon PostgreSQL Database")
