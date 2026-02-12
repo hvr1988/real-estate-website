@@ -33,87 +33,73 @@ def get_db():
         db.close()
 
 # ---------------- HOME PAGE ----------------
+
 @app.get("/", response_class=HTMLResponse)
 def home():
     return """
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Vajrai Properties</title>
+        <title>Vajrai Properties | Modern Living</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/static/style.css">
-        <style>
-            /* Specific overrides for Home Page Hero */
-            .hero {
-                background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
-                            url("https://images.unsplash.com/photo-1560518883-ce09059eeffa");
-                background-size: cover;
-                height: 500px;
-                color: white;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-            }
-            .hero h1 { font-size: 3rem; margin-bottom: 10px; }
-            .section { padding: 60px 20px; text-align: center; }
-            .btn-hero {
-                background: #f97316;
-                color: white;
-                padding: 12px 30px;
-                text-decoration: none;
-                border-radius: 6px;
-                font-weight: bold;
-                margin-top: 20px;
-                display: inline-block;
-            }
-        </style>
     </head>
     <body>
 
     <nav class="navbar">
         <a href="/" class="brand">🏠 Vajrai Properties</a>
         <div class="nav-links">
-            <a href="/" class="active">Home</a>
+            <a href="/">Home</a>
             <a href="/properties">Properties</a>
             <a href="/login">Admin</a>
         </div>
     </nav>
 
     <div class="hero">
-        <h1>Find Your Dream Property</h1>
-        <p>Premium Flats & Commercial Spaces in Virar-Vasai</p>
-        <a class="btn-hero" href="/properties">Browse Properties</a>
+        <h1>Find Your Dream Home.</h1>
+        <p style="font-size: 1.2rem; opacity: 0.9;">Premium Real Estate in Virar, Vasai & Mumbai</p>
+        
+        <form action="/properties" method="get" class="hero-search">
+            <input type="text" name="q" placeholder="Search by location (e.g. Virar West)...">
+            <button type="submit">Search</button>
+        </form>
     </div>
 
     <div class="section">
-        <h2>Why Choose Us?</h2>
-        <div class="container">
-            <div class="card" style="height:auto">
-                <div class="card-body">
-                    <h3>Trusted Agent</h3>
-                    <p>100+ Happy Clients in your area.</p>
-                </div>
+        <h2 style="font-size: 2.5rem; color: #0f172a;">Why Choose Us?</h2>
+        <p style="color: #64748b;">We make finding your next home simple and stress-free.</p>
+        
+        <div class="features-container">
+            <div class="feature-card">
+                <span class="feature-icon">🤝</span>
+                <h3>Trusted Agent</h3>
+                <p>Over 100+ happy families have found their home through us in the last year.</p>
             </div>
-            <div class="card" style="height:auto">
-                 <div class="card-body">
-                    <h3>Best Deals</h3>
-                    <p>Direct from owner listings available.</p>
-                </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">💎</span>
+                <h3>Best Deals</h3>
+                <p>We negotiate directly with owners to get you the best market price.</p>
             </div>
-            <div class="card" style="height:auto">
-                 <div class="card-body">
-                    <h3>Prime Locations</h3>
-                    <p>Near Station, Schools & Markets.</p>
-                </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">📍</span>
+                <h3>Prime Locations</h3>
+                <p>All properties are located near Stations, Schools, and Markets.</p>
             </div>
         </div>
+    </div>
+
+    <div class="footer">
+        <h3>Vajrai Properties</h3>
+        <p>Office No 24, Galaxy Avenue, Virar West - 401303</p>
+        <p>© 2026 All Rights Reserved</p>
     </div>
 
     </body>
     </html>
     """
+
 # ---------------- VIEW ADMIN ----------------
 @app.get("/view-property", response_class=HTMLResponse)
 def view_property(db: Session = Depends(get_db)):
