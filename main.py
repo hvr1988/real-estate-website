@@ -33,126 +33,79 @@ def get_db():
         db.close()
 
 # ---------------- HOME PAGE ----------------
-from fastapi.responses import HTMLResponse
-
 @app.get("/", response_class=HTMLResponse)
 def home():
     return """
     <html>
     <head>
         <title>Vajrai Properties</title>
+
         <style>
-            body {
-                font-family: Arial;
-                background:#f4f6f9;
-                text-align:center;
-                padding-top:80px;
-            }
-            .box{
-                background:white;
-                padding:40px;
-                width:420px;
-                margin:auto;
-                border-radius:14px;
-                box-shadow:0 0 25px rgba(0,0,0,0.15);
-            }
-            h1{color:#0d6efd}
-            .btn{
-                display:block;
-                background:#0d6efd;
-                color:white;
-                padding:15px;
-                margin-top:20px;
-                text-decoration:none;
-                border-radius:8px;
-                font-size:18px;
-            }
-            .btn2{
-                background:#198754;
-            }
+        body{
+            font-family:Arial;
+            background:#f4f6fb;
+            margin:0;
+            padding:0;
+        }
+
+        .top{
+            background:linear-gradient(90deg,#0d6efd,#0047ab);
+            color:white;
+            padding:20px;
+            font-size:28px;
+            text-align:center;
+            font-weight:bold;
+        }
+
+        .centerbox{
+            width:420px;
+            margin:80px auto;
+            background:white;
+            padding:40px;
+            border-radius:14px;
+            text-align:center;
+            box-shadow:0 0 30px rgba(0,0,0,0.15);
+        }
+
+        h2{
+            margin-top:0;
+            color:#333;
+        }
+
+        .btn{
+            display:block;
+            padding:15px;
+            margin-top:20px;
+            border-radius:8px;
+            text-decoration:none;
+            color:white;
+            font-size:18px;
+            font-weight:bold;
+        }
+
+        .view{background:#198754;}
+        .admin{background:#0d6efd;}
+
+        .btn:hover{opacity:0.9}
         </style>
     </head>
+
     <body>
 
-        <div class="box">
-            <h1>🏠 Vajrai Properties</h1>
-            <h3>Virar • Vasai • Mumbai</h3>
+    <div class="top">
+    🏠 Vajrai Properties – Virar | Vasai | Mumbai
+    </div>
 
-            <a class="btn btn2" href="/properties">View Properties</a>
-            <a class="btn" href="/login">Admin Login</a>
-        </div>
+    <div class="centerbox">
+        <h2>Find Your Dream Property</h2>
+
+        <a class="btn view" href="/properties">View Properties</a>
+        <a class="btn admin" href="/login">Admin Login</a>
+    </div>
 
     </body>
     </html>
     """
-
-# ---------------- ADD PROPERTY PAGE ----------------
-@app.get("/add-property", response_class=HTMLResponse)
-def add_property_form():
-    return """
-    <h2>🏠 Add Property</h2>
-
-    <form action="/add-property" method="post" enctype="multipart/form-data">
-
-    Title:<br>
-    <input name="title"><br><br>
-
-    Location:<br>
-    <input name="location"><br><br>
-
-    Price:<br>
-    <input name="price"><br><br>
-
-    Upload Image:<br>
-    <input type="file" name="image"><br><br>
-
-    Description:<br>
-    <textarea name="description"></textarea><br><br>
-
-    <button type="submit">Add Property</button>
-    </form>
-
-    <br><a href="/view-property">View All</a>
-    """
-
-# ---------------- SAVE PROPERTY ----------------
-@app.post("/add-property", response_class=HTMLResponse)
-def save_property(
-    title: str = Form(...),
-    location: str = Form(...),
-    price: str = Form(...),
-    description: str = Form(...),
-    image: UploadFile = File(...),
-    db: Session = Depends(get_db)
-):
-    filepath = f"static/uploads/{image.filename}"
-
-    with open(filepath, "wb") as buffer:
-        shutil.copyfileobj(image.file, buffer)
-
-    image_url = "/" + filepath
-
-    new_property = models.Property(
-        title=title,
-        location=location,
-        price=price,
-        description=description,
-        image=image_url
-    )
-
-    db.add(new_property)
-    db.commit()
-
-    return """
-    <h2>✅ Property Added Successfully</h2>
-    <br>
-
-    <a href='/add-property'>➕ Add Another Property</a><br><br>
-    <a href='/view-property'>📋 View All Properties</a><br><br>
-    <a href='/dashboard'>📊 Admin Dashboard</a><br><br>
-    <a href='/'>🏠 Home Page</a>
-    """
-
 
 # ---------------- VIEW ADMIN ----------------
 @app.get("/view-property", response_class=HTMLResponse)
