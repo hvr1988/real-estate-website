@@ -38,69 +38,115 @@ def home():
     return """
     <html>
     <head>
-        <title>Vajrai Properties</title>
+    <title>Vajrai Properties</title>
 
-        <style>
-        body{
-            font-family:Arial;
-            background:#f4f6fb;
-            margin:0;
-            padding:0;
-        }
+    <style>
+    body{
+        font-family:Arial;
+        margin:0;
+        background:#f4f6fb;
+    }
 
-        .top{
-            background:linear-gradient(90deg,#0d6efd,#0047ab);
-            color:white;
-            padding:20px;
-            font-size:28px;
-            text-align:center;
-            font-weight:bold;
-        }
+    .topbar{
+        background:linear-gradient(90deg,#0d6efd,#0047ab);
+        color:white;
+        padding:18px;
+        font-size:26px;
+        text-align:center;
+        font-weight:bold;
+    }
 
-        .centerbox{
-            width:420px;
-            margin:80px auto;
-            background:white;
-            padding:40px;
-            border-radius:14px;
-            text-align:center;
-            box-shadow:0 0 30px rgba(0,0,0,0.15);
-        }
+    .hero{
+        text-align:center;
+        padding:60px 20px;
+    }
 
-        h2{
-            margin-top:0;
-            color:#333;
-        }
+    .hero h1{
+        font-size:34px;
+        color:#333;
+    }
 
-        .btn{
-            display:block;
-            padding:15px;
-            margin-top:20px;
-            border-radius:8px;
-            text-decoration:none;
-            color:white;
-            font-size:18px;
-            font-weight:bold;
-        }
+    .btn{
+        display:inline-block;
+        padding:15px 25px;
+        margin:10px;
+        font-size:18px;
+        border-radius:8px;
+        text-decoration:none;
+        color:white;
+        font-weight:bold;
+    }
 
-        .view{background:#198754;}
-        .admin{background:#0d6efd;}
+    .view{background:#198754;}
+    .login{background:#0d6efd;}
 
-        .btn:hover{opacity:0.9}
-        </style>
+    .section{
+        padding:50px;
+        text-align:center;
+    }
+
+    .card{
+        display:inline-block;
+        width:260px;
+        background:white;
+        padding:20px;
+        margin:15px;
+        border-radius:10px;
+        box-shadow:0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .footer{
+        background:#111;
+        color:#ccc;
+        text-align:center;
+        padding:30px;
+        margin-top:40px;
+    }
+    </style>
     </head>
 
     <body>
 
-    <div class="top">
+    <div class="topbar">
     🏠 Vajrai Properties – Virar | Vasai | Mumbai
     </div>
 
-    <div class="centerbox">
-        <h2>Find Your Dream Property</h2>
+    <div class="hero">
+        <h1>Find Your Dream Property</h1>
 
         <a class="btn view" href="/properties">View Properties</a>
-        <a class="btn admin" href="/login">Admin Login</a>
+        <a class="btn login" href="/login">Admin Login</a>
+    </div>
+
+    <div class="section">
+        <h2>Why Choose Us</h2>
+
+        <div class="card">
+        <h3>Trusted Agent</h3>
+        100+ Happy Clients in Virar-Vasai
+        </div>
+
+        <div class="card">
+        <h3>Best Deals</h3>
+        1RK to Luxury Villas Available
+        </div>
+
+        <div class="card">
+        <h3>Prime Locations</h3>
+        Near Station, School & Market
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Contact Us</h2>
+        📍 Office No 24, Galaxy Avenue, Virar West<br><br>
+        📞 8999338010<br><br>
+        🟢 WhatsApp Available 24/7
+    </div>
+
+    <div class="footer">
+    © 2026 Vajrai Properties | Owner: Pankaj Nikam<br>
+    Serving Virar - Vasai - Mumbai
     </div>
 
     </body>
