@@ -36,123 +36,84 @@ def get_db():
 @app.get("/", response_class=HTMLResponse)
 def home():
     return """
+    <!DOCTYPE html>
     <html>
     <head>
-    <title>Vajrai Properties</title>
-
-    <style>
-    body{
-        font-family:Arial;
-        margin:0;
-        background:#f4f6fb;
-    }
-
-    .topbar{
-        background:linear-gradient(90deg,#0d6efd,#0047ab);
-        color:white;
-        padding:18px;
-        font-size:26px;
-        text-align:center;
-        font-weight:bold;
-    }
-
-    .hero{
-        text-align:center;
-        padding:60px 20px;
-    }
-
-    .hero h1{
-        font-size:34px;
-        color:#333;
-    }
-
-    .btn{
-        display:inline-block;
-        padding:15px 25px;
-        margin:10px;
-        font-size:18px;
-        border-radius:8px;
-        text-decoration:none;
-        color:white;
-        font-weight:bold;
-    }
-
-    .view{background:#198754;}
-    .login{background:#0d6efd;}
-
-    .section{
-        padding:50px;
-        text-align:center;
-    }
-
-    .card{
-        display:inline-block;
-        width:260px;
-        background:white;
-        padding:20px;
-        margin:15px;
-        border-radius:10px;
-        box-shadow:0 5px 15px rgba(0,0,0,0.15);
-    }
-
-    .footer{
-        background:#111;
-        color:#ccc;
-        text-align:center;
-        padding:30px;
-        margin-top:40px;
-    }
-    </style>
+        <title>Vajrai Properties</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/static/style.css">
+        <style>
+            /* Specific overrides for Home Page Hero */
+            .hero {
+                background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
+                            url("https://images.unsplash.com/photo-1560518883-ce09059eeffa");
+                background-size: cover;
+                height: 500px;
+                color: white;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+            }
+            .hero h1 { font-size: 3rem; margin-bottom: 10px; }
+            .section { padding: 60px 20px; text-align: center; }
+            .btn-hero {
+                background: #f97316;
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: bold;
+                margin-top: 20px;
+                display: inline-block;
+            }
+        </style>
     </head>
-
     <body>
 
-    <div class="topbar">
-    🏠 Vajrai Properties – Virar | Vasai | Mumbai
-    </div>
+    <nav class="navbar">
+        <a href="/" class="brand">🏠 Vajrai Properties</a>
+        <div class="nav-links">
+            <a href="/" class="active">Home</a>
+            <a href="/properties">Properties</a>
+            <a href="/login">Admin</a>
+        </div>
+    </nav>
 
     <div class="hero">
         <h1>Find Your Dream Property</h1>
-
-        <a class="btn view" href="/properties">View Properties</a>
-        <a class="btn login" href="/login">Admin Login</a>
+        <p>Premium Flats & Commercial Spaces in Virar-Vasai</p>
+        <a class="btn-hero" href="/properties">Browse Properties</a>
     </div>
 
     <div class="section">
-        <h2>Why Choose Us</h2>
-
-        <div class="card">
-        <h3>Trusted Agent</h3>
-        100+ Happy Clients in Virar-Vasai
+        <h2>Why Choose Us?</h2>
+        <div class="container">
+            <div class="card" style="height:auto">
+                <div class="card-body">
+                    <h3>Trusted Agent</h3>
+                    <p>100+ Happy Clients in your area.</p>
+                </div>
+            </div>
+            <div class="card" style="height:auto">
+                 <div class="card-body">
+                    <h3>Best Deals</h3>
+                    <p>Direct from owner listings available.</p>
+                </div>
+            </div>
+            <div class="card" style="height:auto">
+                 <div class="card-body">
+                    <h3>Prime Locations</h3>
+                    <p>Near Station, Schools & Markets.</p>
+                </div>
+            </div>
         </div>
-
-        <div class="card">
-        <h3>Best Deals</h3>
-        1RK to Luxury Villas Available
-        </div>
-
-        <div class="card">
-        <h3>Prime Locations</h3>
-        Near Station, School & Market
-        </div>
-    </div>
-
-    <div class="section">
-        <h2>Contact Us</h2>
-        📍 Office No 24, Galaxy Avenue, Virar West<br><br>
-        📞 8999338010<br><br>
-        🟢 WhatsApp Available 24/7
-    </div>
-
-    <div class="footer">
-    © 2026 Vajrai Properties | Owner: Pankaj Nikam<br>
-    Serving Virar - Vasai - Mumbai
     </div>
 
     </body>
     </html>
     """
-
 # ---------------- VIEW ADMIN ----------------
 @app.get("/view-property", response_class=HTMLResponse)
 def view_property(db: Session = Depends(get_db)):
@@ -203,146 +164,93 @@ def delete_property(pid:int, db:Session=Depends(get_db)):
 
 
 # ---------------- PUBLIC WEBSITE ----------------
+# ---------------- PUBLIC WEBSITE ----------------
 @app.get("/properties", response_class=HTMLResponse)
 def public_properties(db: Session = Depends(get_db)):
 
     properties = db.query(models.Property).all()
 
+    # START OF HTML
     html = """
+    <!DOCTYPE html>
     <html>
     <head>
-    <title>Vajrai Properties | Virar-Vasai</title>
-
-    <style>
-    body{
-        font-family:Arial;
-        background:#f5f7fb;
-        margin:0;
-        padding:0;
-    }
-
-    .topbar{
-        background:linear-gradient(90deg,#0d6efd,#0047ab);
-        color:white;
-        padding:18px;
-        font-size:26px;
-        font-weight:bold;
-        text-align:center;
-        letter-spacing:1px;
-    }
-
-    .container{
-        padding:40px;
-    }
-
-    .card{
-        background:white;
-        width:320px;
-        border-radius:12px;
-        display:inline-block;
-        margin:20px;
-        box-shadow:0 6px 18px rgba(0,0,0,0.15);
-        transition:0.3s;
-        vertical-align:top;
-    }
-
-    .card:hover{
-        transform:scale(1.03);
-        box-shadow:0 10px 25px rgba(0,0,0,0.25);
-    }
-
-    .card img{
-        width:100%;
-        height:220px;
-        object-fit:cover;
-        border-radius:12px 12px 0 0;
-    }
-
-    .card-body{
-        padding:15px;
-    }
-
-    .title{
-        font-size:20px;
-        font-weight:bold;
-        margin-bottom:8px;
-    }
-
-    .loc{
-        color:#666;
-        margin-bottom:6px;
-    }
-
-    .price{
-        color:#0d6efd;
-        font-size:18px;
-        font-weight:bold;
-        margin-bottom:10px;
-    }
-
-    .desc{
-        font-size:14px;
-        margin-bottom:15px;
-    }
-
-    .btn{
-        background:#25D366;
-        color:white;
-        padding:10px 18px;
-        text-decoration:none;
-        border-radius:6px;
-        font-weight:bold;
-        display:inline-block;
-    }
-
-    .footer{
-        background:#111;
-        color:#ccc;
-        padding:30px;
-        text-align:center;
-        margin-top:40px;
-        font-size:14px;
-    }
-    </style>
+        <title>Vajrai Properties | Search</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/static/style.css">
     </head>
-
     <body>
 
-    <div class='topbar'>
-    🏠 Vajrai Properties – Virar | Vasai
+    <nav class="navbar">
+        <a href="/" class="brand">🏠 Vajrai Properties</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/properties" class="active">Properties</a>
+            <a href="/login">Admin</a>
+        </div>
+    </nav>
+
+    <div class="search-container">
+        <h2>Find Your Perfect Home</h2>
+        <input type="text" id="searchBox" class="search-box" 
+               onkeyup="filterProperties()" 
+               placeholder="🔍 Search by location, price, or title...">
     </div>
 
-    <div class='container'>
+    <div class="container" id="propertyGrid">
     """
 
+    # LOOP THROUGH PROPERTIES
     for p in properties:
         html += f"""
-        <div class='card'>
-            <img src='{p.image}'>
-
-            <div class='card-body'>
-                <div class='title'>{p.title}</div>
-                <div class='loc'>📍 {p.location}</div>
-                <div class='price'>💰 {p.price}</div>
-                <div class='desc'>{p.description}</div>
-
-                <a class='btn'
-                href='https://api.whatsapp.com/send?phone=918999338010&text=I am interested in {p.title}'
-                target='_blank'>
-                WhatsApp Now
+        <div class="card">
+            <img src="{p.image}" alt="Property Image">
+            <div class="card-body">
+                <div class="title">{p.title}</div>
+                <div class="loc">📍 {p.location}</div>
+                <div class="price">💰 {p.price}</div>
+                <div class="desc">{p.description}</div>
+                
+                <a class="btn-whatsapp" 
+                   href="https://api.whatsapp.com/send?phone=918999338010&text=Hi, I am interested in {p.title}" 
+                   target="_blank">
+                   WhatsApp Now
                 </a>
             </div>
         </div>
         """
 
+    # END OF HTML + JAVASCRIPT FOR SEARCH
     html += """
-
     </div>
 
-    <div class='footer'>
-    © 2026 Vajrai Properties | Owner: Pankaj Nikam | 📞 8999338010  
-    Serving Virar - Vasai Only
-    </div>
+    <script>
+    function filterProperties() {
+        // 1. Get the search text
+        let input = document.getElementById('searchBox');
+        let filter = input.value.toUpperCase();
+        
+        // 2. Get all cards
+        let container = document.getElementById('propertyGrid');
+        let cards = container.getElementsByClassName('card');
+
+        // 3. Loop through cards and hide those that don't match
+        for (let i = 0; i < cards.length; i++) {
+            let title = cards[i].getElementsByClassName("title")[0];
+            let loc = cards[i].getElementsByClassName("loc")[0];
+            let price = cards[i].getElementsByClassName("price")[0];
+            
+            // Combine text to search in Title, Location AND Price
+            let txtValue = title.textContent + " " + loc.textContent + " " + price.textContent;
+            
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                cards[i].style.display = "";
+            } else {
+                cards[i].style.display = "none";
+            }
+        }
+    }
+    </script>
 
     </body>
     </html>

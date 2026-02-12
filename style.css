@@ -1,161 +1,182 @@
-/* 1. IMPORT GOOGLE FONTS */
+/* style.css - Modern Real Estate Theme */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-/* 2. GLOBAL RESET & TYPOGRAPHY */
-body {
-    font-family: 'Inter', sans-serif; /* Cleaner, modern font */
-    margin: 0;
-    background-color: #f8fafc; /* Slightly cooler grey for a tech/finance feel */
-    color: #334155; /* Dark grey text is easier to read than pure black */
-    line-height: 1.6;
+:root {
+    --primary: #0f172a;    /* Navy */
+    --accent: #f97316;     /* Orange */
+    --success: #22c55e;    /* Green */
+    --bg: #f1f5f9;         /* Light Gray */
+    --text: #334155;       /* Dark Gray */
 }
 
-/* 3. NAVIGATION BAR */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--text);
+    padding-bottom: 60px; /* Space for footer */
+}
+
+/* --- 1. STICKY NAVBAR --- */
 .navbar {
-    background: #0f172a; /* Keep your dark blue */
-    padding: 15px 5%; /* Use % so it looks good on all screens */
+    background: var(--primary);
+    padding: 15px 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    position: sticky; /* Keeps nav visible when scrolling */
+    position: sticky;
     top: 0;
     z-index: 1000;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
 }
 
-.navbar a {
-    color: #cbd5e1; /* Off-white is softer */
-    margin-left: 25px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: color 0.3s ease; /* Smooth color change */
-}
-
-.navbar a:hover {
-    color: white; /* Bright white on hover */
-}
-
-/* 4. HERO SECTION */
-.hero {
-    /* Added a dark overlay gradient so text is always readable */
-    background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
-                url("https://images.unsplash.com/photo-1560518883-ce09059eeffa");
-    background-position: center;
-    background-size: cover;
-    height: 500px; /* Increased height for impact */
+.brand {
     color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 0 20px;
-}
-
-.hero h1 {
-    font-size: 3rem; /* Make the main title big */
-    margin-bottom: 10px;
-}
-
-.hero p {
     font-size: 1.2rem;
-    margin-bottom: 30px;
-    max-width: 600px;
-    opacity: 0.9;
-}
-
-/* 5. BUTTONS */
-.btn {
-    background: #f97316; /* Professional Orange */
-    padding: 12px 30px;
-    color: white;
+    font-weight: 700;
     text-decoration: none;
-    border-radius: 6px; /* Slightly softer corners */
-    font-weight: 600;
-    transition: all 0.3s ease; /* Animate the hover */
-    display: inline-block;
-    border: 1px solid transparent;
+    letter-spacing: 0.5px;
 }
 
-.btn:hover {
-    background: #ea580c; /* Darker orange on hover */
-    transform: translateY(-2px); /* Slight lift effect */
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); /* Glow effect */
+.nav-links a {
+    color: #cbd5e1;
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
 }
 
-/* 6. SECTIONS */
-.section {
+.nav-links a:hover, .nav-links a.active {
+    color: white;
+    border-bottom: 2px solid var(--accent);
+}
+
+/* --- 2. SEARCH BAR --- */
+.search-container {
     text-align: center;
-    padding: 80px 20px; /* More breathing room */
-    max-width: 1200px; /* Prevents stretching on huge screens */
-    margin: 0 auto; /* Centers the section */
+    padding: 30px 20px;
+    background: white;
+    margin-bottom: 30px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.section h2 {
-    font-size: 2rem;
-    color: #0f172a;
-    margin-bottom: 40px;
+.search-box {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    outline: none;
+    transition: 0.3s;
 }
 
-/* 7. CARDS (SERVICES) */
-.services {
+.search-box:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+}
+
+/* --- 3. PROPERTY GRID --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 30px; /* Replaces margin to create even space */
+    gap: 30px;
 }
 
 .card {
     background: white;
-    padding: 30px;
-    width: 280px;
-    /* Professional "Soft" Shadow */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 
-                0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    width: 300px;
     border-radius: 12px;
-    text-align: center;
-    border: 1px solid #e2e8f0; /* Subtle border */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden; /* Keeps image inside corners */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
 }
 
 .card:hover {
-    transform: translateY(-5px); /* Lifts up when you mouse over */
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
-                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* 8. CONTACT & FOOTER */
-.contact {
-    background: #0f172a;
+.card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--primary);
+}
+
+.loc {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.price {
+    font-size: 1.25rem;
+    color: var(--accent);
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.desc {
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+/* --- 4. BUTTONS --- */
+.btn-whatsapp {
+    margin-top: auto; /* Pushes button to bottom */
+    background: var(--success);
     color: white;
     text-align: center;
-    padding: 80px 20px;
-    margin-top: 60px;
-}
-
-.whatsapp {
-    background: #22c55e; /* Vibrant Green */
-    padding: 12px 30px;
-    color: white;
+    padding: 10px;
+    border-radius: 8px;
     text-decoration: none;
-    border-radius: 50px; /* Pill shape is trendy for chat apps */
-    font-weight: bold;
-    display: inline-flex;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 10px;
-    transition: background 0.3s;
+    gap: 8px;
+    transition: 0.3s;
 }
 
-.whatsapp:hover {
+.btn-whatsapp:hover {
     background: #16a34a;
 }
 
-.footer {
-    background: #020617; /* Even darker than nav for contrast */
-    color: #94a3b8;
-    text-align: center;
-    padding: 30px;
-    font-size: 0.9rem;
-    border-top: 1px solid #1e293b;
+/* --- 5. MOBILE FIXES --- */
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .container {
+        padding: 10px;
+    }
+    .card {
+        width: 100%;
+    }
 }
