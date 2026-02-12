@@ -33,8 +33,58 @@ def get_db():
         db.close()
 
 # ---------------- HOME PAGE ----------------
+from fastapi.responses import HTMLResponse
+
 @app.get("/", response_class=HTMLResponse)
 def home():
+    return """
+    <html>
+    <head>
+        <title>Vajrai Properties</title>
+        <style>
+            body {
+                font-family: Arial;
+                background:#f4f6f9;
+                text-align:center;
+                padding-top:80px;
+            }
+            .box{
+                background:white;
+                padding:40px;
+                width:420px;
+                margin:auto;
+                border-radius:14px;
+                box-shadow:0 0 25px rgba(0,0,0,0.15);
+            }
+            h1{color:#0d6efd}
+            .btn{
+                display:block;
+                background:#0d6efd;
+                color:white;
+                padding:15px;
+                margin-top:20px;
+                text-decoration:none;
+                border-radius:8px;
+                font-size:18px;
+            }
+            .btn2{
+                background:#198754;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="box">
+            <h1>🏠 Vajrai Properties</h1>
+            <h3>Virar • Vasai • Mumbai</h3>
+
+            <a class="btn btn2" href="/properties">View Properties</a>
+            <a class="btn" href="/login">Admin Login</a>
+        </div>
+
+    </body>
+    </html>
+    """
 
 # ---------------- ADD PROPERTY PAGE ----------------
 @app.get("/add-property", response_class=HTMLResponse)
