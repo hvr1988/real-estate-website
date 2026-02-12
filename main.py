@@ -35,30 +35,6 @@ def get_db():
 # ---------------- HOME PAGE ----------------
 @app.get("/", response_class=HTMLResponse)
 def home():
-    return """
-    <html>
-    <head>
-    <title>Vajrai Properties | Virar-Vasai</title>
-    </head>
-
-    <body style="font-family:Arial;background:#f4f6f8">
-
-    <h1 style="background:#0d6efd;color:white;padding:20px">
-    🏠 Vajrai Properties – Virar Vasai
-    </h1>
-
-    <center>
-    <h2>Find Your Dream Property</h2>
-    <a href='/properties' style="padding:10px 20px;background:green;color:white;text-decoration:none">
-    View Properties
-    </a>
-    <br><br>
-    <a href='/login'>🔐 Admin Login</a>
-    </center>
-
-    </body>
-    </html>
-    """
 
 # ---------------- ADD PROPERTY PAGE ----------------
 @app.get("/add-property", response_class=HTMLResponse)
