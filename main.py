@@ -30,28 +30,42 @@ HTML_HEAD = """
     
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; }
+        
+        /* Navbar */
         .navbar { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px 0; }
         .navbar-brand { font-weight: 700; color: #2c3e50; font-size: 1.5rem; }
         .nav-link { color: #555; font-weight: 500; margin-left: 20px; }
         .nav-link:hover { color: #007bff; }
-        .btn-primary { background-color: #007bff; border: none; padding: 10px 25px; border-radius: 30px; }
         
-        /* Hero */
+        /* Hero Section */
         .hero {
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
-            background-size: cover; background-position: center; height: 60vh;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+            background-size: cover; background-position: center; height: 70vh;
             display: flex; align-items: center; justify-content: center; text-align: center; color: white;
         }
-        .hero h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 20px; }
+        .hero h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 10px; }
         
-        /* Cards */
+        /* Option Cards (Buy, Rent, Sell) */
+        .option-card {
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px; padding: 30px; margin: 10px;
+            color: white; transition: 0.3s; cursor: pointer;
+        }
+        .option-card:hover { background: rgba(255,255,255,0.2); transform: translateY(-5px); }
+        .option-icon { font-size: 2.5rem; margin-bottom: 15px; color: #00d2ff; }
+        
+        /* Property Cards */
         .property-card { border: none; border-radius: 15px; overflow: hidden; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .card-img-top { height: 200px; object-fit: cover; }
         .badge-category { position: absolute; top: 10px; left: 10px; padding: 5px 15px; border-radius: 20px; color: white; font-size: 0.8rem; text-transform: uppercase; }
         .bg-rent { background-color: #17a2b8; }
         .bg-buy { background-color: #6610f2; }
         
+        /* WhatsApp Button */
         .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 40px; right: 40px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; z-index: 100; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+        
+        footer { background: #2c3e50; color: white; padding: 40px 0; margin-top: 50px; }
     </style>
 </head>
 """
@@ -60,9 +74,10 @@ HTML_HEAD = """
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db), category: Optional[str] = None, location: Optional[str] = None):
     
-    # 🔍 Check if Admin is logged in (Look for Cookie)
+    # 🔍 Check Admin Status
     is_admin = request.cookies.get("admin_token") == "logged_in"
     
+    # 🔍 Filter Logic
     query = db.query(models.Property)
     if category and category != "All":
         query = query.filter(models.Property.category == category)
@@ -71,14 +86,14 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
     
     properties = query.all()
 
+    # 🃏 Generate Cards
     cards_html = ""
     for p in properties:
         badge_color = "bg-buy" if p.category == "Buy" else "bg-rent"
         
-        # 🔒 Only show DELETE button if Admin
         delete_btn = ""
         if is_admin:
-            delete_btn = f'<a href="/delete-property/{p.id}" class="text-danger small mt-2 d-block text-center fw-bold" onclick="return confirm(\'Delete this property?\')">❌ Admin: Delete</a>'
+            delete_btn = f'<a href="/delete-property/{p.id}" class="text-danger small mt-2 d-block text-center fw-bold" onclick="return confirm(\'Delete?\')">❌ Admin: Delete</a>'
 
         cards_html += f"""
         <div class="col-md-4 mb-4">
@@ -98,11 +113,16 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         </div>
         """
 
-    # Admin Link Logic (Show Login or Logout)
+    # 🧭 Navbar & Admin Links
     if is_admin:
-        admin_link = '<a class="nav-link text-danger fw-bold" href="/logout">Logout</a>'
+        # Admin View
+        nav_links = """
+        <a class="nav-link fw-bold text-primary" href="/add-property"><i class="fas fa-plus-circle"></i> Add Property</a>
+        <a class="nav-link text-danger" href="/logout">Logout</a>
+        """
     else:
-        admin_link = '<a class="nav-link" href="/admin">Admin Login</a>'
+        # Public View
+        nav_links = '<a class="nav-link" href="/admin">Admin Login</a>'
 
     return f"""
     <!DOCTYPE html>
@@ -114,8 +134,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
                 <a class="navbar-brand" href="/"><i class="fas fa-building"></i> Vajrai Properties</a>
                 <div class="d-flex align-items-center">
                     <a class="nav-link" href="/">Home</a>
-                    <a class="nav-link" href="/add-property">Sell</a>
-                    {admin_link}
+                    {nav_links}
                 </div>
             </div>
         </nav>
@@ -123,30 +142,48 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         <div class="hero">
             <div class="container">
                 <h1>Find Your Dream Home</h1>
-                <p class="lead">Premium Real Estate in Virar, Vasai & Mumbai</p>
+                <p class="lead mb-5">Premium Real Estate in Virar, Vasai & Mumbai</p>
                 
-                <div class="card p-3 shadow-lg mx-auto" style="max-width:800px">
-                    <form action="/" method="get" class="row g-2">
-                        <div class="col-md-4">
-                            <select name="category" class="form-select">
-                                <option value="All">Show All</option>
-                                <option value="Buy">Buy</option>
-                                <option value="Rent">Rent</option>
-                            </select>
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" name="location" class="form-control" placeholder="Search Location...">
-                        </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary w-100">Search</button>
-                        </div>
-                    </form>
+                <div class="row justify-content-center">
+                    <div class="col-md-3">
+                        <a href="/?category=Buy" style="text-decoration:none;">
+                            <div class="option-card">
+                                <i class="fas fa-home option-icon"></i>
+                                <h3>BUY</h3>
+                                <p class="small">Browse Homes for Sale</p>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <a href="https://wa.me/918999338010?text=I%20want%20to%20sell%20my%20property" target="_blank" style="text-decoration:none;">
+                            <div class="option-card">
+                                <i class="fas fa-hand-holding-usd option-icon"></i>
+                                <h3>SELL</h3>
+                                <p class="small">List Your Property</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-md-3">
+                        <a href="/?category=Rent" style="text-decoration:none;">
+                            <div class="option-card">
+                                <i class="fas fa-key option-icon"></i>
+                                <h3>RENT</h3>
+                                <p class="small">Find Rental Homes</p>
+                            </div>
+                        </a>
+                    </div>
                 </div>
+
             </div>
         </div>
 
         <div class="container mt-5">
-            <h2 class="text-center mb-4">Latest Properties</h2>
+            <h2 class="text-center mb-4">Available Properties</h2>
+            
+            {f'<div class="text-center mb-4"><a href="/" class="btn btn-secondary btn-sm">Show All Properties</a></div>' if category else ''}
+            
             <div class="row">
                 {cards_html}
             </div>
@@ -163,52 +200,13 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
     </html>
     """
 
-# ---------------- ADMIN LOGIN PAGE ----------------
-@app.get("/admin", response_class=HTMLResponse)
-def admin_login_page(request: Request):
-    error_msg = request.query_params.get("error", "")
-    error_html = f'<div class="alert alert-danger">{error_msg}</div>' if error_msg else ""
-
-    return f"""
-    <!DOCTYPE html>
-    <html>
-    {HTML_HEAD}
-    <body style="background-color: #f0f2f5;">
-        <nav class="navbar navbar-expand-lg" style="background:white;">
-            <div class="container">
-                <a class="navbar-brand" href="/">Vajrai Properties</a>
-                <a href="/" class="btn btn-secondary rounded-pill px-3">Back</a>
-            </div>
-        </nav>
-
-        <div class="container mt-5">
-            <div class="row justify-content-center">
-                <div class="col-md-4">
-                    <div class="card shadow p-4 text-center">
-                        <h3 class="mb-3">Admin Login</h3>
-                        {error_html}
-                        <form action="/login" method="post">
-                            <div class="mb-3 text-start">
-                                <label>Username</label>
-                                <input name="username" class="form-control" required>
-                            </div>
-                            <div class="mb-3 text-start">
-                                <label>Password</label>
-                                <input type="password" name="password" class="form-control" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Login</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-
-# ---------------- ADD PROPERTY PAGE ----------------
+# ---------------- ADD PROPERTY PAGE (SECURE) ----------------
 @app.get("/add-property", response_class=HTMLResponse)
-def add_property_form():
+def add_property_form(request: Request):
+    # 🔒 SECURITY CHECK: Only allow if Admin Cookie exists
+    if request.cookies.get("admin_token") != "logged_in":
+        return RedirectResponse(url="/admin?error=Login Required to Add Property", status_code=303)
+
     return f"""
     <!DOCTYPE html>
     <html>
@@ -266,14 +264,19 @@ def add_property_form():
     </html>
     """
 
-# ---------------- SAVE PROPERTY LOGIC ----------------
+# ---------------- SAVE PROPERTY LOGIC (SECURE) ----------------
 @app.post("/add-property", response_class=HTMLResponse)
 def save_property(
+    request: Request,
     title: str = Form(...), location: str = Form(...),
     price: str = Form(...), description: str = Form(...),
     image: str = Form(...), category: str = Form(...),
     db: Session = Depends(get_db)
 ):
+    # 🔒 SECURITY CHECK
+    if request.cookies.get("admin_token") != "logged_in":
+        return RedirectResponse(url="/admin", status_code=303)
+
     new_property = models.Property(
         title=title, location=location, price=price,
         description=description, image=image, category=category 
@@ -290,3 +293,46 @@ def delete_property(pid: int, db: Session = Depends(get_db)):
         db.delete(prop)
         db.commit()
     return RedirectResponse(url="/", status_code=303)
+
+# ---------------- ADMIN LOGIN PAGE ----------------
+@app.get("/admin", response_class=HTMLResponse)
+def admin_login_page(request: Request):
+    error_msg = request.query_params.get("error", "")
+    error_html = f'<div class="alert alert-danger">{error_msg}</div>' if error_msg else ""
+
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    {HTML_HEAD}
+    <body style="background-color: #f0f2f5;">
+        <nav class="navbar navbar-expand-lg" style="background:white;">
+            <div class="container">
+                <a class="navbar-brand" href="/">Vajrai Properties</a>
+                <a href="/" class="btn btn-secondary rounded-pill px-3">Back</a>
+            </div>
+        </nav>
+
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-4">
+                    <div class="card shadow p-4 text-center">
+                        <h3 class="mb-3">Admin Login</h3>
+                        {error_html}
+                        <form action="/login" method="post">
+                            <div class="mb-3 text-start">
+                                <label>Username</label>
+                                <input name="username" class="form-control" required>
+                            </div>
+                            <div class="mb-3 text-start">
+                                <label>Password</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
