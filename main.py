@@ -1,14 +1,13 @@
 from fastapi import FastAPI, Form, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import text  # Required for the database fix
+from sqlalchemy import text
 from database import engine, SessionLocal
 import models
 from auth import router as auth_router
 from typing import Optional
 
 # --- DATABASE SETUP ---
-# creating tables (this will auto-create tables if they don't exist)
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -22,33 +21,22 @@ def get_db():
         db.close()
 
 # ---------------------------------------------------------
-# 🛠️ DATABASE REPAIR ROUTE (Run this once)
+# 🛠️ DATABASE REPAIR ROUTE (DISABLED FOR SAFETY)
 # ---------------------------------------------------------
-@app.get("/fix-db", response_class=HTMLResponse)
-def fix_database(db: Session = Depends(get_db)):
-    try:
-        # 1. Drop the old table
-        db.execute(text("DROP TABLE IF EXISTS properties;"))
-        db.commit()
-        
-        # 2. Recreate the table with the new 'category' column
-        models.Base.metadata.create_all(bind=engine)
-        
-        return """
-        <div style="padding:50px; text-align:center; font-family:sans-serif;">
-            <h1 style="color:green;">✅ Success! Database Repaired.</h1>
-            <p>The old table was deleted and a new one with the 'category' column was created.</p>
-            <br>
-            <a href="/" style="background:blue; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Go to Home Page</a>
-        </div>
-        """
-    except Exception as e:
-        return f"<h1>❌ Error: {e}</h1>"
+# @app.get("/fix-db", response_class=HTMLResponse)
+# def fix_database(db: Session = Depends(get_db)):
+#     try:
+#         db.execute(text("DROP TABLE IF EXISTS properties;"))
+#         db.commit()
+#         models.Base.metadata.create_all(bind=engine)
+#         return "<h1>Fixed!</h1>"
+#     except Exception as e:
+#         return f"<h1>Error: {e}</h1>"
 
-# --- CSS & STYLING (Professional Theme) ---
+# --- CSS & STYLING ---
 HTML_HEAD = """
 <head>
-    <title>Dream Homes | Real Estate</title>
+    <title>Vajrai Properties | Modern Living</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -62,11 +50,15 @@ HTML_HEAD = """
         .navbar-brand { font-weight: 700; color: #2c3e50; font-size: 1.5rem; }
         .nav-link { color: #555; font-weight: 500; margin-left: 20px; }
         .nav-link:hover { color: #007bff; }
+        
+        /* Buttons */
         .btn-primary { background-color: #007bff; border: none; padding: 10px 25px; border-radius: 30px; }
+        .btn-back { background-color: #6c757d; color: white; border-radius: 30px; padding: 8px 20px; text-decoration: none; display: inline-block; }
+        .btn-back:hover { background-color: #5a6268; color: white; }
 
         /* Hero Section */
         .hero {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
             background-size: cover;
             background-position: center;
             height: 60vh;
@@ -76,7 +68,7 @@ HTML_HEAD = """
             text-align: center;
             color: white;
         }
-        .hero h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 20px; }
+        .hero h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
         
         /* Search Box */
         .search-box {
@@ -127,17 +119,15 @@ HTML_HEAD = """
         }
         .whatsapp-float:hover { background-color: #20ba5a; color: white; }
 
-        /* Footer */
         footer { background: #2c3e50; color: white; padding: 40px 0; margin-top: 50px; }
     </style>
 </head>
 """
 
-# ---------------- HOME PAGE (HERO + FILTERS) ----------------
+# ---------------- HOME PAGE ----------------
 @app.get("/", response_class=HTMLResponse)
 def home(db: Session = Depends(get_db), category: Optional[str] = None, location: Optional[str] = None):
     
-    # Filter Logic
     query = db.query(models.Property)
     if category and category != "All":
         query = query.filter(models.Property.category == category)
@@ -146,7 +136,6 @@ def home(db: Session = Depends(get_db), category: Optional[str] = None, location
     
     properties = query.all()
 
-    # Generate Property Cards HTML
     cards_html = ""
     for p in properties:
         badge_color = "bg-buy" if p.category == "Buy" else "bg-rent"
@@ -164,7 +153,7 @@ def home(db: Session = Depends(get_db), category: Optional[str] = None, location
                     <p class="card-text">{p.description[:100]}...</p>
                     <a href="#" class="btn btn-outline-primary w-100">View Details</a>
                     
-                    <a href="/delete-property/{p.id}" class="text-danger small mt-2 d-block text-center">Admin: Delete</a>
+                    <a href="/delete-property/{p.id}" class="text-danger small mt-2 d-block text-center" onclick="return confirm('Are you sure?')">Admin: Delete</a>
                 </div>
             </div>
         </div>
@@ -177,11 +166,11 @@ def home(db: Session = Depends(get_db), category: Optional[str] = None, location
     <body>
         <nav class="navbar navbar-expand-lg">
             <div class="container">
-                <a class="navbar-brand" href="/"><i class="fas fa-home"></i> Vajra Properties</a>
-                <div class="d-flex">
+                <a class="navbar-brand" href="/"><i class="fas fa-building"></i> Vajrai Properties</a>
+                <div class="d-flex align-items-center">
                     <a class="nav-link" href="/">Home</a>
-                    <a class="nav-link" href="/add-property">Sell Your Property</a>
-                    <a class="nav-link" href="/admin">Admin Login</a>
+                    <a class="nav-link" href="/add-property">Sell</a>
+                    <a class="nav-link" href="/admin">Admin</a>
                 </div>
             </div>
         </nav>
@@ -197,8 +186,8 @@ def home(db: Session = Depends(get_db), category: Optional[str] = None, location
                             <label class="form-label fw-bold">I want to</label>
                             <select name="category" class="form-select">
                                 <option value="All">Show All</option>
-                                <option value="Buy">Buy a Home</option>
-                                <option value="Rent">Rent a Home</option>
+                                <option value="Buy">Buy</option>
+                                <option value="Rent">Rent</option>
                             </select>
                         </div>
                         <div class="col-md-5">
@@ -225,9 +214,8 @@ def home(db: Session = Depends(get_db), category: Optional[str] = None, location
         </a>
 
         <footer class="text-center">
-            <p>© 2026 Vajra Properties. All Rights Reserved.</p>
+            <p>© 2026 Vajrai Properties. All Rights Reserved.</p>
         </footer>
-
     </body>
     </html>
     """
@@ -242,7 +230,8 @@ def add_property_form():
     <body style="background-color: #f0f2f5;">
         <nav class="navbar navbar-expand-lg" style="background:white;">
             <div class="container">
-                <a class="navbar-brand" href="/">⬅ Back to Home</a>
+                <a class="navbar-brand" href="/">Vajrai Properties</a>
+                <a href="/" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Home</a>
             </div>
         </nav>
 
@@ -254,9 +243,8 @@ def add_property_form():
                         <form action="/add-property" method="post">
                             <div class="mb-3">
                                 <label>Title</label>
-                                <input name="title" class="form-control" required placeholder="e.g. 2BHK Flat near Station">
+                                <input name="title" class="form-control" required>
                             </div>
-                            
                             <div class="row mb-3">
                                 <div class="col">
                                     <label>Type</label>
@@ -267,28 +255,72 @@ def add_property_form():
                                 </div>
                                 <div class="col">
                                     <label>Price</label>
-                                    <input name="price" class="form-control" required placeholder="e.g. 50 Lakhs">
+                                    <input name="price" class="form-control" required>
                                 </div>
                             </div>
-
                             <div class="mb-3">
                                 <label>Location</label>
-                                <input name="location" class="form-control" required placeholder="e.g. Virar West, Global City">
+                                <input name="location" class="form-control" required>
                             </div>
-
                             <div class="mb-3">
                                 <label>Description</label>
                                 <textarea name="description" class="form-control" rows="3"></textarea>
                             </div>
-
                             <div class="mb-3">
                                 <label>Image URL</label>
-                                <input name="image" class="form-control" placeholder="https://...">
-                                <small class="text-muted">Paste a link to an image (right click image > copy image address)</small>
+                                <input name="image" class="form-control">
                             </div>
-
                             <button type="submit" class="btn btn-primary w-100">Submit Property</button>
                         </form>
+                        <div class="text-center mt-3">
+                            <a href="/" class="text-muted">Cancel and Go Home</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+# ---------------- ADMIN LOGIN PAGE (NEW!) ----------------
+@app.get("/admin", response_class=HTMLResponse)
+def admin_login_page():
+    # This was likely missing before, causing the "Not Found" error
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    {HTML_HEAD}
+    <body style="background-color: #f0f2f5;">
+        <nav class="navbar navbar-expand-lg" style="background:white;">
+            <div class="container">
+                <a class="navbar-brand" href="/">Vajrai Properties</a>
+                <a href="/" class="btn-back"><i class="fas fa-home"></i> Home</a>
+            </div>
+        </nav>
+
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-4">
+                    <div class="card shadow p-4 text-center">
+                        <h3 class="mb-3">Admin Login</h3>
+                        <p class="text-muted">Secure Access Only</p>
+                        
+                        <form action="/token" method="post">
+                            <div class="mb-3 text-start">
+                                <label>Username</label>
+                                <input name="username" class="form-control" required>
+                            </div>
+                            <div class="mb-3 text-start">
+                                <label>Password</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                        </form>
+                        
+                        <div class="mt-3">
+                             <a href="/" class="small text-decoration-none">← Back to Website</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -309,17 +341,11 @@ def save_property(
     db: Session = Depends(get_db)
 ):
     new_property = models.Property(
-        title=title,
-        location=location,
-        price=price,
-        description=description,
-        image=image,
-        category=category 
+        title=title, location=location, price=price,
+        description=description, image=image, category=category 
     )
-
     db.add(new_property)
     db.commit()
-    
     return RedirectResponse(url="/", status_code=303)
 
 # ---------------- DELETE LOGIC ----------------
@@ -328,16 +354,5 @@ def delete_property(pid: int, db: Session = Depends(get_db)):
     prop = db.query(models.Property).filter(models.Property.id == pid).first()
     if prop:
         db.delete(prop)
-
-# ---------------------------------------------------------
-# 🛠️ DATABASE REPAIR ROUTE (DISABLE THIS NOW!)
-# ---------------------------------------------------------
-# @app.get("/fix-db", response_class=HTMLResponse)
-# def fix_database(db: Session = Depends(get_db)):
-#     try:
-#         db.execute(text("DROP TABLE IF EXISTS properties;"))
-#         db.commit()
-#         models.Base.metadata.create_all(bind=engine)
-#         return "<h1>Fixed!</h1>"
-#     except Exception as e:
-#         return f"<h1>Error: {e}</h1>"
+        db.commit()
+    return RedirectResponse(url="/", status_code=303)
