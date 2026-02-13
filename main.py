@@ -328,3 +328,16 @@ def delete_property(pid: int, db: Session = Depends(get_db)):
     prop = db.query(models.Property).filter(models.Property.id == pid).first()
     if prop:
         db.delete(prop)
+
+# ---------------------------------------------------------
+# 🛠️ DATABASE REPAIR ROUTE (DISABLE THIS NOW!)
+# ---------------------------------------------------------
+# @app.get("/fix-db", response_class=HTMLResponse)
+# def fix_database(db: Session = Depends(get_db)):
+#     try:
+#         db.execute(text("DROP TABLE IF EXISTS properties;"))
+#         db.commit()
+#         models.Base.metadata.create_all(bind=engine)
+#         return "<h1>Fixed!</h1>"
+#     except Exception as e:
+#         return f"<h1>Error: {e}</h1>"
