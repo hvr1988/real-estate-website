@@ -10,19 +10,24 @@ import shutil
 import os
 import uuid
 
+# --- NEW IMPORTS FOR CLOUDINARY ---
+import cloudinary
+import cloudinary.uploader
+
+# ---------------------------------------------------------
+# 1. CLOUDINARY SETUP (PASTE YOUR KEYS HERE!) 
+# ---------------------------------------------------------
+cloudinary.config( 
+  cloud_name = "dmqqvdspe", 
+  api_key = "581944738912421", 
+  api_secret = "w_lE8Dc6xPoUKrzF_5JrPaPHJhY",
+  secure = True
+)
+
 # --- DATABASE SETUP ---
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-# ---------------------------------------------------------
-# 1. SETUP IMAGE STORAGE (Crucial for File Uploads)
-# ---------------------------------------------------------
-# Create a folder named 'static/images' if it doesn't exist
-os.makedirs("static/images", exist_ok=True)
-
-# Mount the folder so the browser can see the images
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(auth_router)
 
@@ -101,7 +106,6 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         if is_admin:
             delete_btn = f'<a href="/delete-property/{p.id}" class="text-danger small mt-2 d-block text-center fw-bold" onclick="return confirm(\'Delete?\')">❌ Admin: Delete</a>'
 
-        # If the image path is missing, use a placeholder
         img_src = p.image if p.image else "https://via.placeholder.com/300?text=No+Image"
 
         cards_html += f"""
@@ -201,7 +205,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
     </html>
     """
 
-# ---------------- ADD PROPERTY PAGE (With File Upload) ----------------
+# ---------------- ADD PROPERTY PAGE ----------------
 @app.get("/add-property", response_class=HTMLResponse)
 def add_property_form(request: Request):
     if request.cookies.get("admin_token") != "logged_in":
@@ -224,9 +228,7 @@ def add_property_form(request: Request):
                 <div class="col-md-6">
                     <div class="card shadow-lg p-4">
                         <h2 class="text-center mb-4">Post a Property</h2>
-                        
                         <form action="/add-property" method="post" enctype="multipart/form-data">
-                            
                             <div class="mb-3">
                                 <label>Title</label>
                                 <input name="title" class="form-control" required>
@@ -254,9 +256,8 @@ def add_property_form(request: Request):
                             </div>
                             
                             <div class="mb-3">
-                                <label class="fw-bold">Upload Property Photo</label>
+                                <label class="fw-bold">Upload Photo</label>
                                 <input type="file" name="image_file" class="form-control" accept="image/*" required>
-                                <small class="text-muted">Select a photo from your computer</small>
                             </div>
                             
                             <button type="submit" class="btn btn-primary w-100">Submit Property</button>
@@ -269,34 +270,30 @@ def add_property_form(request: Request):
     </html>
     """
 
-# ---------------- SAVE PROPERTY LOGIC (Handles File Upload) ----------------
+# ---------------- SAVE PROPERTY (UPLOAD TO CLOUD) ----------------
 @app.post("/add-property", response_class=HTMLResponse)
 async def save_property(
     request: Request,
     title: str = Form(...), location: str = Form(...),
     price: str = Form(...), description: str = Form(...),
     category: str = Form(...),
-    image_file: UploadFile = File(...), # Receives the file
+    image_file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
     if request.cookies.get("admin_token") != "logged_in":
         return RedirectResponse(url="/admin", status_code=303)
 
-    # 1. Generate a unique filename to prevent overwriting
-    unique_filename = f"{uuid.uuid4()}_{image_file.filename}"
-    file_path = f"static/images/{unique_filename}"
-    
-    # 2. Save the file to the "static/images" folder
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(image_file.file, buffer)
-    
-    # 3. Create the URL for the database (e.g., /static/images/photo.jpg)
-    image_url = f"/static/images/{unique_filename}"
+    # 🔥 UPLOAD TO CLOUDINARY
+    # This sends the file to the Cloud and returns a permanent URL
+    try:
+        result = cloudinary.uploader.upload(image_file.file)
+        permanent_image_url = result.get("url")
+    except Exception as e:
+        return f"<h1>Error Uploading Image: {e}</h1>"
 
-    # 4. Save to Database
     new_property = models.Property(
         title=title, location=location, price=price,
-        description=description, image=image_url, category=category 
+        description=description, image=permanent_image_url, category=category 
     )
     db.add(new_property)
     db.commit()
