@@ -1,3 +1,39 @@
+# --- ADD THIS IMPORT AT THE TOP ---
+from sqlalchemy import text
+
+# ... (rest of your imports) ...
+
+app = FastAPI()
+app.include_router(auth_router)
+
+# ... (your get_db function) ...
+
+# ---------------------------------------------------------
+# 🛠️ TEMPORARY DATABASE FIXER ROUTE
+# ---------------------------------------------------------
+@app.get("/fix-db", response_class=HTMLResponse)
+def fix_database(db: Session = Depends(get_db)):
+    try:
+        # 1. This SQL command deletes the old, broken table
+        db.execute(text("DROP TABLE IF EXISTS properties;"))
+        db.commit()
+        
+        # 2. This command tells Python to recreate the table with the NEW columns
+        models.Base.metadata.create_all(bind=engine)
+        
+        return """
+        <div style="padding:50px; text-align:center; font-family:sans-serif;">
+            <h1 style="color:green;">✅ Success! Database Repaired.</h1>
+            <p>The old table was deleted and a new one with the 'category' column was created.</p>
+            <br>
+            <a href="/" style="background:blue; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Go to Home Page</a>
+        </div>
+        """
+    except Exception as e:
+        return f"<h1>❌ Error: {e}</h1>"
+# ---------------------------------------------------------
+
+# ... (rest of your code like @app.get("/") ...)
 from fastapi import FastAPI, Form, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
