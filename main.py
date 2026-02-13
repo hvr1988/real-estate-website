@@ -1,49 +1,14 @@
-# --- ADD THIS IMPORT AT THE TOP ---
-from sqlalchemy import text
-
-# ... (rest of your imports) ...
-
-app = FastAPI()
-app.include_router(auth_router)
-
-# ... (your get_db function) ...
-
-# ---------------------------------------------------------
-# 🛠️ TEMPORARY DATABASE FIXER ROUTE
-# ---------------------------------------------------------
-@app.get("/fix-db", response_class=HTMLResponse)
-def fix_database(db: Session = Depends(get_db)):
-    try:
-        # 1. This SQL command deletes the old, broken table
-        db.execute(text("DROP TABLE IF EXISTS properties;"))
-        db.commit()
-        
-        # 2. This command tells Python to recreate the table with the NEW columns
-        models.Base.metadata.create_all(bind=engine)
-        
-        return """
-        <div style="padding:50px; text-align:center; font-family:sans-serif;">
-            <h1 style="color:green;">✅ Success! Database Repaired.</h1>
-            <p>The old table was deleted and a new one with the 'category' column was created.</p>
-            <br>
-            <a href="/" style="background:blue; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Go to Home Page</a>
-        </div>
-        """
-    except Exception as e:
-        return f"<h1>❌ Error: {e}</h1>"
-# ---------------------------------------------------------
-
-# ... (rest of your code like @app.get("/") ...)
 from fastapi import FastAPI, Form, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import text  # Required for the database fix
 from database import engine, SessionLocal
 import models
 from auth import router as auth_router
 from typing import Optional
 
 # --- DATABASE SETUP ---
-# creating tables (this will auto-create the new 'category' column)
+# creating tables (this will auto-create tables if they don't exist)
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -56,8 +21,31 @@ def get_db():
     finally:
         db.close()
 
+# ---------------------------------------------------------
+# 🛠️ DATABASE REPAIR ROUTE (Run this once)
+# ---------------------------------------------------------
+@app.get("/fix-db", response_class=HTMLResponse)
+def fix_database(db: Session = Depends(get_db)):
+    try:
+        # 1. Drop the old table
+        db.execute(text("DROP TABLE IF EXISTS properties;"))
+        db.commit()
+        
+        # 2. Recreate the table with the new 'category' column
+        models.Base.metadata.create_all(bind=engine)
+        
+        return """
+        <div style="padding:50px; text-align:center; font-family:sans-serif;">
+            <h1 style="color:green;">✅ Success! Database Repaired.</h1>
+            <p>The old table was deleted and a new one with the 'category' column was created.</p>
+            <br>
+            <a href="/" style="background:blue; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Go to Home Page</a>
+        </div>
+        """
+    except Exception as e:
+        return f"<h1>❌ Error: {e}</h1>"
+
 # --- CSS & STYLING (Professional Theme) ---
-# I am using Bootstrap 5 for instant professional design + FontAwesome for Icons
 HTML_HEAD = """
 <head>
     <title>Dream Homes | Real Estate</title>
@@ -317,7 +305,7 @@ def save_property(
     price: str = Form(...), 
     description: str = Form(...),
     image: str = Form(...),
-    category: str = Form(...), # NEW FIELD
+    category: str = Form(...),
     db: Session = Depends(get_db)
 ):
     new_property = models.Property(
@@ -326,13 +314,12 @@ def save_property(
         price=price,
         description=description,
         image=image,
-        category=category # Saving to DB
+        category=category 
     )
 
     db.add(new_property)
     db.commit()
     
-    # Redirect to home page after saving
     return RedirectResponse(url="/", status_code=303)
 
 # ---------------- DELETE LOGIC ----------------
@@ -341,5 +328,3 @@ def delete_property(pid: int, db: Session = Depends(get_db)):
     prop = db.query(models.Property).filter(models.Property.id == pid).first()
     if prop:
         db.delete(prop)
-        db.commit()
-    return RedirectResponse(url="/", status_code=303)
