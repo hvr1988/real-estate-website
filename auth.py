@@ -1,37 +1,31 @@
 from fastapi import APIRouter, Form
-from fastapi.responses import HTMLResponse
+from fastapi.responses import RedirectResponse
 
 router = APIRouter()
 
+# --- ADMIN CREDENTIALS ---
 ADMIN_USER = "vajrai"
 ADMIN_PASS = "12345"
 
-# ---------------- LOGIN PAGE ----------------
-@router.get("/login", response_class=HTMLResponse)
-def login_page():
-    return """
-    <h2>🔐 Admin Login - Vajrai Properties</h2>
-    <form method='post'>
-    Username:<br>
-    <input name='username'><br><br>
-    Password:<br>
-    <input type='password' name='password'><br><br>
-    <button type='submit'>Login</button>
-    </form>
-    """
-
-# ---------------- LOGIN CHECK ----------------
-@router.post("/login", response_class=HTMLResponse)
-def login_check(username: str = Form(...), password: str = Form(...)):
+# ---------------- LOGIN LOGIC ----------------
+@router.post("/login")
+def login(username: str = Form(...), password: str = Form(...)):
     if username == ADMIN_USER and password == ADMIN_PASS:
-        return """
-        <h2>🏢 Vajrai Properties Admin Panel</h2>
-        <hr>
-
-        <a href='/dashboard'>📊 Open Dashboard</a><br><br>
-        <a href='/add-property'>➕ Add Property</a><br><br>
-        <a href='/view-property'>📋 View Properties</a><br><br>
-        <a href='/properties'>🌐 Open Website</a><br><br>
-        """
+        # ✅ Success! 
+        # 1. Redirect to Home Page
+        response = RedirectResponse(url="/", status_code=303)
+        # 2. Set the "VIP Badge" (Cookie) so the website remembers you
+        response.set_cookie(key="admin_token", value="logged_in")
+        return response
     else:
-        return "<h3>❌ Wrong login</h3><a href='/login'>Try again</a>"
+        # ❌ Failed! Redirect back to login with error
+        return RedirectResponse(url="/admin?error=Invalid Credentials", status_code=303)
+
+# ---------------- LOGOUT LOGIC ----------------
+@router.get("/logout")
+def logout():
+    # 1. Go to Home Page
+    response = RedirectResponse(url="/", status_code=303)
+    # 2. Remove the "VIP Badge" (Delete Cookie)
+    response.delete_cookie("admin_token")
+    return response
