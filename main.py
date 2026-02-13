@@ -9,6 +9,7 @@ from typing import Optional
 import shutil
 import os
 import uuid
+import urllib.parse # Required for WhatsApp links
 
 # --- NEW IMPORTS FOR CLOUDINARY ---
 import cloudinary
@@ -120,6 +121,9 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
                     <p class="text-muted"><i class="fas fa-map-marker-alt"></i> {p.location}</p>
                     <p class="fw-bold text-success">₹ {p.price}</p>
                     <p class="card-text">{p.description[:100]}...</p>
+                    
+                    <a href="/property/{p.id}" class="btn btn-outline-primary w-100">View Details</a>
+                    
                     {delete_btn}
                 </div>
             </div>
@@ -197,6 +201,67 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         <a href="https://wa.me/918999338010" class="whatsapp-float" target="_blank">
             <i class="fab fa-whatsapp"></i>
         </a>
+
+        <footer class="text-center">
+            <p>© 2026 Vajrai Properties. All Rights Reserved.</p>
+        </footer>
+    </body>
+    </html>
+    """
+
+# ---------------- NEW: PROPERTY DETAILS PAGE ----------------
+@app.get("/property/{pid}", response_class=HTMLResponse)
+def property_details(pid: int, db: Session = Depends(get_db)):
+    p = db.query(models.Property).filter(models.Property.id == pid).first()
+    
+    if not p:
+        return HTMLResponse("<h1>Property Not Found</h1>", status_code=404)
+
+    # WhatsApp Logic
+    message = f"Hi, I am interested in {p.title} at {p.location}. Is it still available?"
+    wa_link = f"https://wa.me/918999338010?text={urllib.parse.quote(message)}"
+
+    img_src = p.image if p.image else "https://via.placeholder.com/600?text=No+Image"
+    badge_color = "bg-buy" if p.category == "Buy" else "bg-rent"
+
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    {HTML_HEAD}
+    <body style="background-color: #f0f2f5;">
+        <nav class="navbar navbar-expand-lg" style="background:white;">
+            <div class="container">
+                <a class="navbar-brand" href="/">Vajrai Properties</a>
+                <a href="/" class="btn btn-secondary rounded-pill px-3">Back to Home</a>
+            </div>
+        </nav>
+
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-8 mb-4">
+                    <img src="{img_src}" class="img-fluid rounded shadow w-100" alt="Property Image">
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm p-4 border-0">
+                        <span class="badge {badge_color} w-25 mb-3" style="padding:10px;">{p.category}</span>
+                        <h2>{p.title}</h2>
+                        <h4 class="text-success fw-bold">₹ {p.price}</h4>
+                        <p class="text-muted"><i class="fas fa-map-marker-alt"></i> {p.location}</p>
+                        <hr>
+                        <h5>Description</h5>
+                        <p>{p.description}</p>
+                        
+                        <a href="{wa_link}" class="btn btn-success w-100 mt-3 btn-lg" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+                        </a>
+                        <a href="tel:+918999338010" class="btn btn-outline-dark w-100 mt-2">
+                            <i class="fas fa-phone"></i> Call Agent
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <footer class="text-center">
             <p>© 2026 Vajrai Properties. All Rights Reserved.</p>
@@ -284,7 +349,6 @@ async def save_property(
         return RedirectResponse(url="/admin", status_code=303)
 
     # 🔥 UPLOAD TO CLOUDINARY
-    # This sends the file to the Cloud and returns a permanent URL
     try:
         result = cloudinary.uploader.upload(image_file.file)
         permanent_image_url = result.get("url")
