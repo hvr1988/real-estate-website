@@ -1,30 +1,18 @@
-from fastapi import FastAPI, Form, Depends, File, UploadFile
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, Form, Depends, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from database import engine, SessionLocal
 import models
 from auth import router as auth_router
-import shutil, os
+from typing import Optional
 
-# ---------------- CREATE TABLES ----------------
+# --- DATABASE SETUP ---
+# creating tables (this will auto-create the new 'category' column)
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-# ---------------- STATIC FOLDER ----------------
-if not os.path.exists("static"):
-    os.mkdir("static")
-
-if not os.path.exists("static/uploads"):
-    os.mkdir("static/uploads")
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# ---------------- INCLUDE LOGIN ROUTER ----------------
 app.include_router(auth_router)
 
-# ---------------- DB ----------------
 def get_db():
     db = SessionLocal()
     try:
@@ -32,214 +20,290 @@ def get_db():
     finally:
         db.close()
 
-# ---------------- HOME PAGE ----------------
+# --- CSS & STYLING (Professional Theme) ---
+# I am using Bootstrap 5 for instant professional design + FontAwesome for Icons
+HTML_HEAD = """
+<head>
+    <title>Dream Homes | Real Estate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; }
+        
+        /* Navbar */
+        .navbar { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px 0; }
+        .navbar-brand { font-weight: 700; color: #2c3e50; font-size: 1.5rem; }
+        .nav-link { color: #555; font-weight: 500; margin-left: 20px; }
+        .nav-link:hover { color: #007bff; }
+        .btn-primary { background-color: #007bff; border: none; padding: 10px 25px; border-radius: 30px; }
 
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 20px; }
+        
+        /* Search Box */
+        .search-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 800px;
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        /* Property Cards */
+        .property-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+        .property-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .card-img-top { height: 200px; object-fit: cover; }
+        .price-tag { color: #28a745; font-weight: 700; font-size: 1.2rem; }
+        .badge-category { position: absolute; top: 10px; left: 10px; padding: 5px 15px; border-radius: 20px; color: white; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .bg-rent { background-color: #17a2b8; }
+        .bg-buy { background-color: #6610f2; }
+
+        /* WhatsApp Button */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 40px;
+            right: 40px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 3px #999;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+        .whatsapp-float:hover { background-color: #20ba5a; color: white; }
+
+        /* Footer */
+        footer { background: #2c3e50; color: white; padding: 40px 0; margin-top: 50px; }
+    </style>
+</head>
+"""
+
+# ---------------- HOME PAGE (HERO + FILTERS) ----------------
 @app.get("/", response_class=HTMLResponse)
-def home():
-    return """
+def home(db: Session = Depends(get_db), category: Optional[str] = None, location: Optional[str] = None):
+    
+    # Filter Logic
+    query = db.query(models.Property)
+    if category and category != "All":
+        query = query.filter(models.Property.category == category)
+    if location:
+        query = query.filter(models.Property.location.contains(location))
+    
+    properties = query.all()
+
+    # Generate Property Cards HTML
+    cards_html = ""
+    for p in properties:
+        badge_color = "bg-buy" if p.category == "Buy" else "bg-rent"
+        cards_html += f"""
+        <div class="col-md-4 mb-4">
+            <div class="property-card">
+                <div style="position:relative">
+                    <span class="badge-category {badge_color}">{p.category}</span>
+                    <img src="{p.image}" class="card-img-top" alt="Property Image">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{p.title}</h5>
+                    <p class="text-muted"><i class="fas fa-map-marker-alt"></i> {p.location}</p>
+                    <p class="price-tag">₹ {p.price}</p>
+                    <p class="card-text">{p.description[:100]}...</p>
+                    <a href="#" class="btn btn-outline-primary w-100">View Details</a>
+                    
+                    <a href="/delete-property/{p.id}" class="text-danger small mt-2 d-block text-center">Admin: Delete</a>
+                </div>
+            </div>
+        </div>
+        """
+
+    return f"""
     <!DOCTYPE html>
     <html>
-    <head>
-        <title>Vajrai Properties | Modern Living</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/static/style.css">
-    </head>
+    {HTML_HEAD}
     <body>
-
-    <nav class="navbar">
-        <a href="/" class="brand">🏠 Vajrai Properties</a>
-        <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/properties">Properties</a>
-            <a href="/login">Admin</a>
-        </div>
-    </nav>
-
-    <div class="hero">
-        <h1>Find Your Dream Home.</h1>
-        <p style="font-size: 1.2rem; opacity: 0.9;">Premium Real Estate in Virar, Vasai & Mumbai</p>
-        
-        <form action="/properties" method="get" class="hero-search">
-            <input type="text" name="q" placeholder="Search by location (e.g. Virar West)...">
-            <button type="submit">Search</button>
-        </form>
-    </div>
-
-    <div class="section">
-        <h2 style="font-size: 2.5rem; color: #0f172a;">Why Choose Us?</h2>
-        <p style="color: #64748b;">We make finding your next home simple and stress-free.</p>
-        
-        <div class="features-container">
-            <div class="feature-card">
-                <span class="feature-icon">🤝</span>
-                <h3>Trusted Agent</h3>
-                <p>Over 100+ happy families have found their home through us in the last year.</p>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="/"><i class="fas fa-home"></i> Vajra Properties</a>
+                <div class="d-flex">
+                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link" href="/add-property">Sell Your Property</a>
+                    <a class="nav-link" href="/admin">Admin Login</a>
+                </div>
             </div>
+        </nav>
 
-            <div class="feature-card">
-                <span class="feature-icon">💎</span>
-                <h3>Best Deals</h3>
-                <p>We negotiate directly with owners to get you the best market price.</p>
-            </div>
-
-            <div class="feature-card">
-                <span class="feature-icon">📍</span>
-                <h3>Prime Locations</h3>
-                <p>All properties are located near Stations, Schools, and Markets.</p>
+        <div class="hero">
+            <div class="container">
+                <h1>Find Your Dream Home</h1>
+                <p class="lead">Premium Real Estate in Virar, Vasai & Mumbai</p>
+                
+                <div class="search-box text-dark text-start">
+                    <form action="/" method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">I want to</label>
+                            <select name="category" class="form-select">
+                                <option value="All">Show All</option>
+                                <option value="Buy">Buy a Home</option>
+                                <option value="Rent">Rent a Home</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold">Location</label>
+                            <input type="text" name="location" class="form-control" placeholder="e.g. Virar West">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Search</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="footer">
-        <h3>Vajrai Properties</h3>
-        <p>Office No 24, Galaxy Avenue, Virar West - 401303</p>
-        <p>© 2026 All Rights Reserved</p>
-    </div>
+        <div class="container mt-5">
+            <h2 class="text-center mb-4">Latest Properties</h2>
+            <div class="row">
+                {cards_html}
+            </div>
+        </div>
+
+        <a href="https://wa.me/918999338010" class="whatsapp-float" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+
+        <footer class="text-center">
+            <p>© 2026 Vajra Properties. All Rights Reserved.</p>
+        </footer>
 
     </body>
     </html>
     """
 
-# ---------------- VIEW ADMIN ----------------
-@app.get("/view-property", response_class=HTMLResponse)
-def view_property(db: Session = Depends(get_db)):
-    properties = db.query(models.Property).all()
+# ---------------- ADD PROPERTY PAGE ----------------
+@app.get("/add-property", response_class=HTMLResponse)
+def add_property_form():
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    {HTML_HEAD}
+    <body style="background-color: #f0f2f5;">
+        <nav class="navbar navbar-expand-lg" style="background:white;">
+            <div class="container">
+                <a class="navbar-brand" href="/">⬅ Back to Home</a>
+            </div>
+        </nav>
 
-    html = """
-    <h1>🏢 Admin Properties</h1>
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow-lg p-4">
+                        <h2 class="text-center mb-4">Post a Property</h2>
+                        <form action="/add-property" method="post">
+                            <div class="mb-3">
+                                <label>Title</label>
+                                <input name="title" class="form-control" required placeholder="e.g. 2BHK Flat near Station">
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label>Type</label>
+                                    <select name="category" class="form-select">
+                                        <option value="Buy">Sell (For Sale)</option>
+                                        <option value="Rent">Rent (To Let)</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label>Price</label>
+                                    <input name="price" class="form-control" required placeholder="e.g. 50 Lakhs">
+                                </div>
+                            </div>
 
-    <a href='/dashboard'>📊 Dashboard</a> |
-    <a href='/add-property'>➕ Add Property</a> |
-    <a href='/'>🏠 Website</a>
+                            <div class="mb-3">
+                                <label>Location</label>
+                                <input name="location" class="form-control" required placeholder="e.g. Virar West, Global City">
+                            </div>
 
-    <hr>
+                            <div class="mb-3">
+                                <label>Description</label>
+                                <textarea name="description" class="form-control" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Image URL</label>
+                                <input name="image" class="form-control" placeholder="https://...">
+                                <small class="text-muted">Paste a link to an image (right click image > copy image address)</small>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Submit Property</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
     """
 
+# ---------------- SAVE PROPERTY LOGIC ----------------
+@app.post("/add-property", response_class=HTMLResponse)
+def save_property(
+    title: str = Form(...), 
+    location: str = Form(...),
+    price: str = Form(...), 
+    description: str = Form(...),
+    image: str = Form(...),
+    category: str = Form(...), # NEW FIELD
+    db: Session = Depends(get_db)
+):
+    new_property = models.Property(
+        title=title,
+        location=location,
+        price=price,
+        description=description,
+        image=image,
+        category=category # Saving to DB
+    )
 
-    for p in properties:
-        html += f"""
-        <div style='border:1px solid gray;padding:10px;margin:10px;width:300px'>
-        <img src='{p.image}' width='250'><br>
-        <b>{p.title}</b><br>
-        {p.location}<br>
-        {p.price}<br>
-        {p.description}<br><br>
+    db.add(new_property)
+    db.commit()
+    
+    # Redirect to home page after saving
+    return RedirectResponse(url="/", status_code=303)
 
-        <a href='/delete-property/{p.id}' style='color:red'>Delete</a>
-        </div>
-        """
-
-    html += "<br><a href='/add-property'>Add New</a>"
-    return html
-
-# ---------------- DELETE ----------------
-@app.get("/delete-property/{pid}", response_class=HTMLResponse)
-def delete_property(pid:int, db:Session=Depends(get_db)):
-    prop = db.query(models.Property).filter(models.Property.id==pid).first()
+# ---------------- DELETE LOGIC ----------------
+@app.get("/delete-property/{pid}")
+def delete_property(pid: int, db: Session = Depends(get_db)):
+    prop = db.query(models.Property).filter(models.Property.id == pid).first()
     if prop:
         db.delete(prop)
         db.commit()
-    return """
-    <h2>❌ Property Deleted</h2><br>
-
-    <a href='/view-property'>📋 Back to Properties</a><br><br>
-    <a href='/add-property'>➕ Add Property</a><br><br>
-    <a href='/dashboard'>📊 Dashboard</a><br><br>
-    <a href='/'>🏠 Home</a>
-    """
-
-
-# ---------------- PUBLIC WEBSITE ----------------
-# ---------------- PUBLIC WEBSITE ----------------
-@app.get("/properties", response_class=HTMLResponse)
-def public_properties(db: Session = Depends(get_db)):
-
-    properties = db.query(models.Property).all()
-
-    # START OF HTML
-    html = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Vajrai Properties | Search</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/static/style.css">
-    </head>
-    <body>
-
-    <nav class="navbar">
-        <a href="/" class="brand">🏠 Vajrai Properties</a>
-        <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/properties" class="active">Properties</a>
-            <a href="/login">Admin</a>
-        </div>
-    </nav>
-
-    <div class="search-container">
-        <h2>Find Your Perfect Home</h2>
-        <input type="text" id="searchBox" class="search-box" 
-               onkeyup="filterProperties()" 
-               placeholder="🔍 Search by location, price, or title...">
-    </div>
-
-    <div class="container" id="propertyGrid">
-    """
-
-    # LOOP THROUGH PROPERTIES
-    for p in properties:
-        html += f"""
-        <div class="card">
-            <img src="{p.image}" alt="Property Image">
-            <div class="card-body">
-                <div class="title">{p.title}</div>
-                <div class="loc">📍 {p.location}</div>
-                <div class="price">💰 {p.price}</div>
-                <div class="desc">{p.description}</div>
-                
-                <a class="btn-whatsapp" 
-                   href="https://api.whatsapp.com/send?phone=918999338010&text=Hi, I am interested in {p.title}" 
-                   target="_blank">
-                   WhatsApp Now
-                </a>
-            </div>
-        </div>
-        """
-
-    # END OF HTML + JAVASCRIPT FOR SEARCH
-    html += """
-    </div>
-
-    <script>
-    function filterProperties() {
-        // 1. Get the search text
-        let input = document.getElementById('searchBox');
-        let filter = input.value.toUpperCase();
-        
-        // 2. Get all cards
-        let container = document.getElementById('propertyGrid');
-        let cards = container.getElementsByClassName('card');
-
-        // 3. Loop through cards and hide those that don't match
-        for (let i = 0; i < cards.length; i++) {
-            let title = cards[i].getElementsByClassName("title")[0];
-            let loc = cards[i].getElementsByClassName("loc")[0];
-            let price = cards[i].getElementsByClassName("price")[0];
-            
-            // Combine text to search in Title, Location AND Price
-            let txtValue = title.textContent + " " + loc.textContent + " " + price.textContent;
-            
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                cards[i].style.display = "";
-            } else {
-                cards[i].style.display = "none";
-            }
-        }
-    }
-    </script>
-
-    </body>
-    </html>
-    """
-
-    return html
+    return RedirectResponse(url="/", status_code=303)
