@@ -44,17 +44,34 @@ def get_db():
     finally:
         db.close()
 
-# --- HELPER: HANDLE IMAGE LISTS ---
+# --- HELPER 1: HANDLE IMAGE LISTS ---
 def parse_images(image_data):
     """Safely converts DB string back to a list of URLs"""
     if not image_data:
         return ["https://via.placeholder.com/600?text=No+Image"]
     try:
-        # Try to parse as JSON list ["url1", "url2"]
         return json.loads(image_data)
     except:
-        # If it's just a single old URL, wrap it in a list
         return [image_data]
+
+# --- HELPER 2: OPTIMIZE CLOUDINARY IMAGES (SPEED BOOST 🚀) ---
+def optimize_url(url, width=500):
+    """
+    Injects Cloudinary transformation parameters to resize and compress images.
+    Input: https://res.cloudinary.com/.../upload/v123/img.jpg
+    Output: https://res.cloudinary.com/.../upload/w_500,c_fill,q_auto,f_auto/v123/img.jpg
+    """
+    if "cloudinary.com" not in url:
+        return url # Return original if not a cloudinary image
+        
+    parts = url.split("/upload/")
+    if len(parts) == 2:
+        # q_auto = Automatic Quality (smaller file, same look)
+        # f_auto = Automatic Format (WebP for Chrome, etc)
+        # c_fill = Crop to fill dimensions
+        transformation = f"w_{width},c_fill,q_auto,f_auto"
+        return f"{parts[0]}/upload/{transformation}/{parts[1]}"
+    return url
 
 # --- CSS & STYLING ---
 HTML_HEAD = """
@@ -74,38 +91,25 @@ HTML_HEAD = """
         .navbar-brand { font-weight: 700; color: #2c3e50; font-size: 1.4rem; }
         .nav-link { color: #555; font-weight: 500; margin-left: 15px; }
         
-        /* --- UPDATED COMPACT HERO SECTION --- */
+        /* Compact Hero */
         .hero {
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
-            background-size: cover; 
-            background-position: center; 
-            height: 40vh; /* REDUCED HEIGHT (approx 30-40% of screen) */
-            min-height: 350px; /* Prevents it from getting too small on mobile */
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            text-align: center; 
-            color: white;
+            background-size: cover; background-position: center; height: 40vh; min-height: 350px;
+            display: flex; align-items: center; justify-content: center; text-align: center; color: white;
         }
-        
         .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; }
         
         /* Compact Option Cards */
         .option-card {
             background: rgba(255,255,255,0.15); backdrop-filter: blur(5px);
             border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 10px; 
-            padding: 15px; 
-            margin: 5px;
+            border-radius: 10px; padding: 15px; margin: 5px;
             color: white; transition: 0.3s; cursor: pointer;
-            min-height: 120px; /* Smaller Height */
-            display: flex; flex-direction: column; justify-content: center;
+            min-height: 120px; display: flex; flex-direction: column; justify-content: center;
         }
         .option-card:hover { background: rgba(255,255,255,0.25); transform: translateY(-3px); }
         .option-icon { font-size: 2rem; margin-bottom: 10px; color: #00d2ff; }
-        .option-card h3 { font-size: 1.2rem; font-weight: 600; margin: 0; }
-        .option-card p { font-size: 0.8rem; margin: 0; opacity: 0.8; }
-
+        
         /* Property Cards */
         .property-card { border: none; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s; }
         .property-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
@@ -117,7 +121,6 @@ HTML_HEAD = """
         
         .whatsapp-float { position: fixed; width: 55px; height: 55px; bottom: 80px; right: 20px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 28px; z-index: 100; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); }
         
-        /* Mobile Sticky Bar */
         @media (max-width: 768px) {
             .mobile-bottom-nav {
                 position: fixed; bottom: 0; left: 0; width: 100%; background: white;
@@ -147,7 +150,6 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
     for p in properties:
         badge_color = "bg-buy" if p.category == "Buy" else "bg-rent"
         
-        # Admin Controls
         admin_controls = ""
         if is_admin:
             admin_controls = f"""
@@ -157,9 +159,9 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
             </div>
             """
 
-        # Handle Multiple Images (Show only the first one on Home Page)
         images = parse_images(p.image)
-        thumbnail = images[0]
+        # 🚀 OPTIMIZE: Resize to 400px width for thumbnails
+        thumbnail = optimize_url(images[0], width=400)
 
         cards_html += f"""
         <div class="col-md-4 mb-4">
@@ -167,7 +169,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
                 <div style="position:relative">
                     <span class="badge-category {badge_color}">{p.category}</span>
                     <a href="/property/{p.id}">
-                        <img src="{thumbnail}" class="card-img-top" alt="Property Image">
+                        <img src="{thumbnail}" class="card-img-top" alt="Property Image" loading="lazy">
                     </a>
                 </div>
                 <div class="card-body">
@@ -208,32 +210,20 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         <div class="hero">
             <div class="container">
                 <h1>Find Your Dream Home</h1>
-                
                 <div class="row justify-content-center mt-4">
                     <div class="col-4 col-md-3">
                         <a href="/?category=Buy" style="text-decoration:none;">
-                            <div class="option-card">
-                                <i class="fas fa-home option-icon"></i>
-                                <h3>BUY</h3>
-                            </div>
+                            <div class="option-card"><i class="fas fa-home option-icon"></i><h3>BUY</h3></div>
                         </a>
                     </div>
-                    
                     <div class="col-4 col-md-3">
                         <a href="https://wa.me/918999338010?text=I%20want%20to%20sell%20my%20property" target="_blank" style="text-decoration:none;">
-                            <div class="option-card">
-                                <i class="fas fa-hand-holding-usd option-icon"></i>
-                                <h3>SELL</h3>
-                            </div>
+                            <div class="option-card"><i class="fas fa-hand-holding-usd option-icon"></i><h3>SELL</h3></div>
                         </a>
                     </div>
-
                     <div class="col-4 col-md-3">
                         <a href="/?category=Rent" style="text-decoration:none;">
-                            <div class="option-card">
-                                <i class="fas fa-key option-icon"></i>
-                                <h3>RENT</h3>
-                            </div>
+                            <div class="option-card"><i class="fas fa-key option-icon"></i><h3>RENT</h3></div>
                         </a>
                     </div>
                 </div>
@@ -278,21 +268,23 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
     </html>
     """
 
-# ---------------- PROPERTY DETAILS (CAROUSEL + MOBILE ACTIONS) ----------------
+# ---------------- PROPERTY DETAILS ----------------
 @app.get("/property/{pid}", response_class=HTMLResponse)
 def property_details(pid: int, db: Session = Depends(get_db)):
     p = db.query(models.Property).filter(models.Property.id == pid).first()
     if not p:
         return HTMLResponse("<h1>Property Not Found</h1>", status_code=404)
 
-    # Prepare Carousel Items
     images = parse_images(p.image)
     carousel_items = ""
     for index, img_url in enumerate(images):
         active_class = "active" if index == 0 else ""
+        # 🚀 OPTIMIZE: Resize to 800px for main gallery (Balances Quality & Speed)
+        optimized_img = optimize_url(img_url, width=800)
+        
         carousel_items += f"""
         <div class="carousel-item {active_class}">
-            <img src="{img_url}" class="d-block w-100 rounded" style="height: 400px; object-fit: cover;" alt="Property Image">
+            <img src="{optimized_img}" class="d-block w-100 rounded" style="height: 400px; object-fit: cover;" alt="Property Image" loading="lazy">
         </div>
         """
 
@@ -315,18 +307,11 @@ def property_details(pid: int, db: Session = Depends(get_db)):
             <div class="row">
                 <div class="col-md-8 mb-4">
                     <div id="propCarousel" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            {carousel_items}
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#propCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#propCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        </button>
+                        <div class="carousel-inner">{carousel_items}</div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#propCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#propCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
                     </div>
                 </div>
-
                 <div class="col-md-4">
                     <div class="card shadow-sm p-4 border-0">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -339,7 +324,6 @@ def property_details(pid: int, db: Session = Depends(get_db)):
                         <hr>
                         <h5>Description</h5>
                         <p style="white-space: pre-line;">{p.description}</p>
-                        
                         <div class="d-none d-md-block">
                             <a href="{wa_link}" class="btn btn-success w-100 mb-2 btn-lg"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
                             <a href="tel:+918999338010" class="btn btn-outline-dark w-100"><i class="fas fa-phone"></i> Call Agent</a>
@@ -348,92 +332,44 @@ def property_details(pid: int, db: Session = Depends(get_db)):
                 </div>
             </div>
         </div>
-
         <div class="d-md-none mobile-bottom-nav">
             <a href="tel:+918999338010" class="btn btn-outline-dark w-50 me-2"><i class="fas fa-phone"></i> Call</a>
             <a href="{wa_link}" class="btn btn-success w-50"><i class="fab fa-whatsapp"></i> WhatsApp</a>
         </div>
-
     </body>
     </html>
     """
 
-# ---------------- ADD PROPERTY (MULTIPLE IMAGES) ----------------
+# ---------------- ADD PROPERTY ----------------
 @app.get("/add-property", response_class=HTMLResponse)
 def add_property_form(request: Request):
-    if request.cookies.get("admin_token") != "logged_in":
-        return RedirectResponse(url="/admin", status_code=303)
-
+    if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/admin", status_code=303)
     return f"""
-    <!DOCTYPE html>
-    <html>
-    {HTML_HEAD}
-    <body>
-        <nav class="navbar navbar-expand-lg">
-            <div class="container"><a class="navbar-brand" href="/">Vajrai Properties</a></div>
-        </nav>
-        <div class="container mt-5">
-            <div class="card shadow p-4 mx-auto" style="max-width: 600px;">
-                <h3 class="mb-3">Add New Property</h3>
-                <form action="/add-property" method="post" enctype="multipart/form-data">
-                    <label class="form-label">Property Title</label>
-                    <input name="title" class="form-control mb-3" placeholder="e.g. 2BHK Flat Near Station" required>
-                    
-                    <div class="row mb-3">
-                        <div class="col">
-                             <label class="form-label">Type</label>
-                             <select name="category" class="form-select"><option value="Buy">Sell</option><option value="Rent">Rent</option></select>
-                        </div>
-                        <div class="col">
-                             <label class="form-label">Price</label>
-                             <input name="price" class="form-control" placeholder="e.g. 50 Lakh" required>
-                        </div>
-                    </div>
-                    
-                    <label class="form-label">Location</label>
-                    <input name="location" class="form-control mb-3" placeholder="e.g. Virar West, Global City" required>
-                    
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control mb-3" placeholder="Full Details..." rows="4"></textarea>
-                    
-                    <label class="fw-bold form-label">Upload Photos (Select Multiple)</label>
-                    <input type="file" name="image_files" class="form-control mb-3" accept="image/*" multiple required>
-                    
-                    <button type="submit" class="btn btn-primary w-100">Submit Listing</button>
-                </form>
-            </div>
-        </div>
-    </body>
-    </html>
+    <!DOCTYPE html><html>{HTML_HEAD}<body>
+    <nav class="navbar"><div class="container"><a class="navbar-brand" href="/">Vajrai Properties</a></div></nav>
+    <div class="container mt-5"><div class="card shadow p-4 mx-auto" style="max-width: 600px;">
+    <h3 class="mb-3">Add New Property</h3>
+    <form action="/add-property" method="post" enctype="multipart/form-data">
+    <label class="form-label">Title</label><input name="title" class="form-control mb-3" required>
+    <div class="row mb-3"><div class="col"><label class="form-label">Type</label><select name="category" class="form-select"><option value="Buy">Sell</option><option value="Rent">Rent</option></select></div>
+    <div class="col"><label class="form-label">Price</label><input name="price" class="form-control" required></div></div>
+    <label class="form-label">Location</label><input name="location" class="form-control mb-3" required>
+    <label class="form-label">Description</label><textarea name="description" class="form-control mb-3" rows="4"></textarea>
+    <label class="fw-bold form-label">Photos (Max 5)</label><input type="file" name="image_files" class="form-control mb-3" accept="image/*" multiple required>
+    <button type="submit" class="btn btn-primary w-100">Submit</button>
+    </form></div></div></body></html>
     """
 
 @app.post("/add-property")
-async def save_property(
-    request: Request,
-    title: str = Form(...), location: str = Form(...),
-    price: str = Form(...), description: str = Form(...),
-    category: str = Form(...),
-    image_files: List[UploadFile] = File(...),
-    db: Session = Depends(get_db)
-):
+async def save_property(request: Request, title: str = Form(...), location: str = Form(...), price: str = Form(...), description: str = Form(...), category: str = Form(...), image_files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/admin", status_code=303)
-
     uploaded_urls = []
     for file in image_files:
         try:
-            # Upload to Cloudinary
             res = cloudinary.uploader.upload(file.file)
             uploaded_urls.append(res.get("url"))
-        except Exception as e:
-            print(f"Error uploading: {e}")
-
-    # Store list of URLs as a JSON string
-    images_json = json.dumps(uploaded_urls)
-
-    new_prop = models.Property(
-        title=title, location=location, price=price,
-        description=description, image=images_json, category=category
-    )
+        except: pass
+    new_prop = models.Property(title=title, location=location, price=price, description=description, image=json.dumps(uploaded_urls), category=category)
     db.add(new_prop)
     db.commit()
     return RedirectResponse(url="/", status_code=303)
@@ -442,53 +378,23 @@ async def save_property(
 @app.get("/edit-property/{pid}", response_class=HTMLResponse)
 def edit_property_form(pid: int, request: Request, db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/admin", status_code=303)
-    
     p = db.query(models.Property).filter(models.Property.id == pid).first()
-    
     return f"""
-    <!DOCTYPE html>
-    <html>
-    {HTML_HEAD}
-    <body>
-        <nav class="navbar navbar-expand-lg">
-            <div class="container"><a class="navbar-brand" href="/">Vajrai Properties</a></div>
-        </nav>
-        <div class="container mt-5">
-            <div class="card shadow p-4 mx-auto" style="max-width: 600px;">
-                <h3>Edit Property (ID: {pid})</h3>
-                <form action="/edit-property/{pid}" method="post">
-                    <label>Title</label>
-                    <input name="title" class="form-control mb-2" value="{p.title}" required>
-                    
-                    <label>Price</label>
-                    <input name="price" class="form-control mb-2" value="{p.price}" required>
-                    
-                    <label>Location</label>
-                    <input name="location" class="form-control mb-2" value="{p.location}" required>
-                    
-                    <label>Description</label>
-                    <textarea name="description" class="form-control mb-3" rows="5">{p.description}</textarea>
-                    
-                    <button type="submit" class="btn btn-warning w-100">Update Details</button>
-                </form>
-                <div class="alert alert-info mt-3 small">
-                    Note: To change images, please Delete and Add New.
-                </div>
-            </div>
-        </div>
-    </body>
-    </html>
+    <!DOCTYPE html><html>{HTML_HEAD}<body>
+    <div class="container mt-5"><div class="card shadow p-4 mx-auto" style="max-width: 600px;">
+    <h3>Edit Property</h3>
+    <form action="/edit-property/{pid}" method="post">
+    <label>Title</label><input name="title" class="form-control mb-2" value="{p.title}" required>
+    <label>Price</label><input name="price" class="form-control mb-2" value="{p.price}" required>
+    <label>Location</label><input name="location" class="form-control mb-2" value="{p.location}" required>
+    <label>Description</label><textarea name="description" class="form-control mb-3" rows="5">{p.description}</textarea>
+    <button type="submit" class="btn btn-warning w-100">Update</button>
+    </form></div></div></body></html>
     """
 
 @app.post("/edit-property/{pid}")
-def update_property(
-    pid: int, request: Request,
-    title: str = Form(...), price: str = Form(...),
-    location: str = Form(...), description: str = Form(...),
-    db: Session = Depends(get_db)
-):
+def update_property(pid: int, request: Request, title: str = Form(...), price: str = Form(...), location: str = Form(...), description: str = Form(...), db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/admin", status_code=303)
-    
     p = db.query(models.Property).filter(models.Property.id == pid).first()
     if p:
         p.title = title
@@ -496,17 +402,14 @@ def update_property(
         p.location = location
         p.description = description
         db.commit()
-        
     return RedirectResponse(url=f"/property/{pid}", status_code=303)
 
-# ---------------- DELETE & AUTH ----------------
+# ---------------- DELETE & ADMIN ----------------
 @app.get("/delete-property/{pid}")
 def delete_property(pid: int, request: Request, db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/admin", status_code=303)
     prop = db.query(models.Property).filter(models.Property.id == pid).first()
-    if prop:
-        db.delete(prop)
-        db.commit()
+    if prop: db.delete(prop); db.commit()
     return RedirectResponse(url="/", status_code=303)
 
 @app.get("/admin", response_class=HTMLResponse)
@@ -517,8 +420,8 @@ def admin_login(request: Request):
     <div class="container mt-5"><div class="card shadow p-4 mx-auto text-center" style="max-width:400px;">
     <h3>Admin Login</h3><p class="text-danger">{error}</p>
     <form action="/login" method="post">
-    <div class="mb-3 text-start"><label>Username</label><input name="username" class="form-control" required></div>
-    <div class="mb-3 text-start"><label>Password</label><input type="password" name="password" class="form-control" required></div>
+    <input name="username" class="form-control mb-2" placeholder="User">
+    <input type="password" name="password" class="form-control mb-2" placeholder="Pass">
     <button class="btn btn-primary w-100">Login</button>
     </form></div></div></body></html>
     """
