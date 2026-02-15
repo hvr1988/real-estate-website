@@ -1,19 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from database import Base
 
-# ADMIN TABLE
-class Admin(Base):
-    __tablename__ = "admins"
-
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True)
-    password = Column(String)
-
-
-# PROPERTY TABLE (ONLY ONE TIME)
-from sqlalchemy import Column, Integer, String
-from database import Base
-
 class Property(Base):
     __tablename__ = "properties"
 
@@ -23,4 +10,5 @@ class Property(Base):
     price = Column(String)
     description = Column(String)
     image = Column(String)
-    category = Column(String)  # <--- NEW COLUMN ADDED for "Buy" or "Rent"
+    category = Column(String)  # Buy / Rent
+    status = Column(String, default="Available") # NEW: Available, Sold, Rented

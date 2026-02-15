@@ -20,9 +20,9 @@ import cloudinary.uploader
 # 1. CLOUDINARY SETUP (PASTE YOUR KEYS HERE!) 
 # ---------------------------------------------------------
 cloudinary.config( 
-  cloud_name = "dmqqvdspe", 
-  api_key = "581944738912421", 
-  api_secret = "w_lE8Dc6xPoUKrzF_5JrPaPHJhY",
+  cloud_name = "YOUR_CLOUD_NAME", 
+  api_key = "YOUR_API_KEY", 
+  api_secret = "YOUR_API_SECRET",
   secure = True
 )
 
@@ -46,7 +46,6 @@ def get_db():
 
 # --- HELPER 1: HANDLE IMAGE LISTS ---
 def parse_images(image_data):
-    """Safely converts DB string back to a list of URLs"""
     if not image_data:
         return ["https://via.placeholder.com/600?text=No+Image"]
     try:
@@ -54,21 +53,12 @@ def parse_images(image_data):
     except:
         return [image_data]
 
-# --- HELPER 2: OPTIMIZE CLOUDINARY IMAGES (SPEED BOOST 🚀) ---
+# --- HELPER 2: OPTIMIZE CLOUDINARY IMAGES ---
 def optimize_url(url, width=500):
-    """
-    Injects Cloudinary transformation parameters to resize and compress images.
-    Input: https://res.cloudinary.com/.../upload/v123/img.jpg
-    Output: https://res.cloudinary.com/.../upload/w_500,c_fill,q_auto,f_auto/v123/img.jpg
-    """
     if "cloudinary.com" not in url:
-        return url # Return original if not a cloudinary image
-        
+        return url 
     parts = url.split("/upload/")
     if len(parts) == 2:
-        # q_auto = Automatic Quality (smaller file, same look)
-        # f_auto = Automatic Format (WebP for Chrome, etc)
-        # c_fill = Crop to fill dimensions
         transformation = f"w_{width},c_fill,q_auto,f_auto"
         return f"{parts[0]}/upload/{transformation}/{parts[1]}"
     return url
@@ -82,7 +72,6 @@ HTML_HEAD = """
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
@@ -91,7 +80,6 @@ HTML_HEAD = """
         .navbar-brand { font-weight: 700; color: #2c3e50; font-size: 1.4rem; }
         .nav-link { color: #555; font-weight: 500; margin-left: 15px; }
         
-        /* Compact Hero */
         .hero {
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
             background-size: cover; background-position: center; height: 40vh; min-height: 350px;
@@ -99,35 +87,36 @@ HTML_HEAD = """
         }
         .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; }
         
-        /* Compact Option Cards */
         .option-card {
             background: rgba(255,255,255,0.15); backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 10px; padding: 15px; margin: 5px;
-            color: white; transition: 0.3s; cursor: pointer;
-            min-height: 120px; display: flex; flex-direction: column; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; padding: 15px; margin: 5px;
+            color: white; transition: 0.3s; cursor: pointer; min-height: 120px;
+            display: flex; flex-direction: column; justify-content: center;
         }
         .option-card:hover { background: rgba(255,255,255,0.25); transform: translateY(-3px); }
         .option-icon { font-size: 2rem; margin-bottom: 10px; color: #00d2ff; }
         
-        /* Property Cards */
         .property-card { border: none; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s; }
         .property-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .card-img-top { height: 200px; object-fit: cover; }
         
-        .badge-category { position: absolute; top: 10px; left: 10px; padding: 4px 12px; border-radius: 20px; color: white; font-size: 0.75rem; text-transform: uppercase; }
+        .badge-category { position: absolute; top: 10px; left: 10px; padding: 4px 12px; border-radius: 20px; color: white; font-size: 0.75rem; text-transform: uppercase; z-index: 10; }
         .bg-rent { background-color: #17a2b8; }
         .bg-buy { background-color: #6610f2; }
         
-        .whatsapp-float { position: fixed; width: 55px; height: 55px; bottom: 80px; right: 20px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 28px; z-index: 100; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); }
-        
-        @media (max-width: 768px) {
-            .mobile-bottom-nav {
-                position: fixed; bottom: 0; left: 0; width: 100%; background: white;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.1); padding: 10px; z-index: 1000;
-                display: flex; justify-content: space-around;
-            }
+        /* NEW: SOLD BADGE */
+        .sold-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.7); display: flex; align-items: center; justify-content: center;
+            z-index: 5;
         }
+        .sold-badge {
+            background: #dc3545; color: white; font-weight: 800; padding: 10px 30px;
+            font-size: 1.5rem; transform: rotate(-15deg); border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-transform: uppercase;
+        }
+        
+        .whatsapp-float { position: fixed; width: 55px; height: 55px; bottom: 80px; right: 20px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 28px; z-index: 100; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); }
     </style>
 </head>
 """
@@ -150,6 +139,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
     for p in properties:
         badge_color = "bg-buy" if p.category == "Buy" else "bg-rent"
         
+        # Admin Controls
         admin_controls = ""
         if is_admin:
             admin_controls = f"""
@@ -160,14 +150,21 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
             """
 
         images = parse_images(p.image)
-        # 🚀 OPTIMIZE: Resize to 400px width for thumbnails
         thumbnail = optimize_url(images[0], width=400)
+
+        # SOLD LOGIC
+        sold_overlay = ""
+        if p.status == "Sold":
+            sold_overlay = '<div class="sold-overlay"><div class="sold-badge">SOLD</div></div>'
+        elif p.status == "Rented":
+            sold_overlay = '<div class="sold-overlay"><div class="sold-badge bg-primary">RENTED</div></div>'
 
         cards_html += f"""
         <div class="col-md-4 mb-4">
             <div class="property-card">
                 <div style="position:relative">
                     <span class="badge-category {badge_color}">{p.category}</span>
+                    {sold_overlay}
                     <a href="/property/{p.id}">
                         <img src="{thumbnail}" class="card-img-top" alt="Property Image" loading="lazy">
                     </a>
@@ -211,21 +208,9 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
             <div class="container">
                 <h1>Find Your Dream Home</h1>
                 <div class="row justify-content-center mt-4">
-                    <div class="col-4 col-md-3">
-                        <a href="/?category=Buy" style="text-decoration:none;">
-                            <div class="option-card"><i class="fas fa-home option-icon"></i><h3>BUY</h3></div>
-                        </a>
-                    </div>
-                    <div class="col-4 col-md-3">
-                        <a href="https://wa.me/918999338010?text=I%20want%20to%20sell%20my%20property" target="_blank" style="text-decoration:none;">
-                            <div class="option-card"><i class="fas fa-hand-holding-usd option-icon"></i><h3>SELL</h3></div>
-                        </a>
-                    </div>
-                    <div class="col-4 col-md-3">
-                        <a href="/?category=Rent" style="text-decoration:none;">
-                            <div class="option-card"><i class="fas fa-key option-icon"></i><h3>RENT</h3></div>
-                        </a>
-                    </div>
+                    <div class="col-4 col-md-3"><a href="/?category=Buy" style="text-decoration:none;"><div class="option-card"><i class="fas fa-home option-icon"></i><h3>BUY</h3></div></a></div>
+                    <div class="col-4 col-md-3"><a href="https://wa.me/918999338010?text=I%20want%20to%20sell%20my%20property" target="_blank" style="text-decoration:none;"><div class="option-card"><i class="fas fa-hand-holding-usd option-icon"></i><h3>SELL</h3></div></a></div>
+                    <div class="col-4 col-md-3"><a href="/?category=Rent" style="text-decoration:none;"><div class="option-card"><i class="fas fa-key option-icon"></i><h3>RENT</h3></div></a></div>
                 </div>
             </div>
         </div>
@@ -233,37 +218,20 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         <div class="container mt-4">
             <div class="card p-3 shadow-sm mx-auto" style="max-width:800px; border-radius:10px;">
                 <form action="/" method="get" class="row g-2">
-                    <div class="col-md-3">
-                        <select name="category" class="form-select bg-light">
-                            <option value="All">All Types</option>
-                            <option value="Buy">Buy</option>
-                            <option value="Rent">Rent</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="text" name="location" class="form-control bg-light" placeholder="Search Location (e.g. Virar)...">
-                    </div>
-                    <div class="col-md-3">
-                        <button type="submit" class="btn btn-primary w-100">Search</button>
-                    </div>
+                    <div class="col-md-3"><select name="category" class="form-select bg-light"><option value="All">All Types</option><option value="Buy">Buy</option><option value="Rent">Rent</option></select></div>
+                    <div class="col-md-6"><input type="text" name="location" class="form-control bg-light" placeholder="Search Location (e.g. Virar)..."></div>
+                    <div class="col-md-3"><button type="submit" class="btn btn-primary w-100">Search</button></div>
                 </form>
             </div>
         </div>
 
         <div class="container mt-5">
             <h3 class="mb-4" style="font-weight:600;">Latest Properties</h3>
-            <div class="row">
-                {cards_html}
-            </div>
+            <div class="row">{cards_html}</div>
         </div>
 
-        <a href="https://wa.me/918999338010" class="whatsapp-float" target="_blank">
-            <i class="fab fa-whatsapp"></i>
-        </a>
-
-        <footer class="text-center pt-5 pb-4 text-muted">
-            <p>© 2026 Vajrai Properties. All Rights Reserved.</p>
-        </footer>
+        <a href="https://wa.me/918999338010" class="whatsapp-float" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        <footer class="text-center pt-5 pb-4 text-muted"><p>© 2026 Vajrai Properties. All Rights Reserved.</p></footer>
     </body>
     </html>
     """
@@ -272,37 +240,28 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
 @app.get("/property/{pid}", response_class=HTMLResponse)
 def property_details(pid: int, db: Session = Depends(get_db)):
     p = db.query(models.Property).filter(models.Property.id == pid).first()
-    if not p:
-        return HTMLResponse("<h1>Property Not Found</h1>", status_code=404)
+    if not p: return HTMLResponse("<h1>Property Not Found</h1>", status_code=404)
 
     images = parse_images(p.image)
     carousel_items = ""
     for index, img_url in enumerate(images):
         active_class = "active" if index == 0 else ""
-        # 🚀 OPTIMIZE: Resize to 800px for main gallery (Balances Quality & Speed)
         optimized_img = optimize_url(img_url, width=800)
-        
-        carousel_items += f"""
-        <div class="carousel-item {active_class}">
-            <img src="{optimized_img}" class="d-block w-100 rounded" style="height: 400px; object-fit: cover;" alt="Property Image" loading="lazy">
-        </div>
-        """
+        carousel_items += f'<div class="carousel-item {active_class}"><img src="{optimized_img}" class="d-block w-100 rounded" style="height: 400px; object-fit: cover;" alt="Property Image"></div>'
 
     message = f"Hi, I am interested in {p.title} at {p.location}. Is it available?"
     wa_link = f"https://wa.me/918999338010?text={urllib.parse.quote(message)}"
 
-    return f"""
-    <!DOCTYPE html>
-    <html>
-    {HTML_HEAD}
-    <body>
-        <nav class="navbar navbar-expand-lg">
-            <div class="container">
-                <a class="navbar-brand" href="/">Vajrai Properties</a>
-                <a href="/" class="btn btn-secondary btn-sm rounded-pill px-3">Back</a>
-            </div>
-        </nav>
+    # Status Badge Logic
+    status_badge = ""
+    if p.status == "Sold":
+        status_badge = '<span class="badge bg-danger ms-2">SOLD OUT</span>'
+    elif p.status == "Rented":
+        status_badge = '<span class="badge bg-primary ms-2">RENTED</span>'
 
+    return f"""
+    <!DOCTYPE html><html>{HTML_HEAD}<body>
+        <nav class="navbar navbar-expand-lg"><div class="container"><a class="navbar-brand" href="/">Vajrai Properties</a><a href="/" class="btn btn-secondary btn-sm rounded-pill px-3">Back</a></div></nav>
         <div class="container mt-4">
             <div class="row">
                 <div class="col-md-8 mb-4">
@@ -315,8 +274,7 @@ def property_details(pid: int, db: Session = Depends(get_db)):
                 <div class="col-md-4">
                     <div class="card shadow-sm p-4 border-0">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-primary">{p.category}</span>
-                            <span class="text-muted small">ID: {p.id}</span>
+                            <span class="badge bg-dark">{p.category}</span> {status_badge}
                         </div>
                         <h2>{p.title}</h2>
                         <h3 class="text-success fw-bold mb-3">₹ {p.price}</h3>
@@ -336,8 +294,7 @@ def property_details(pid: int, db: Session = Depends(get_db)):
             <a href="tel:+918999338010" class="btn btn-outline-dark w-50 me-2"><i class="fas fa-phone"></i> Call</a>
             <a href="{wa_link}" class="btn btn-success w-50"><i class="fab fa-whatsapp"></i> WhatsApp</a>
         </div>
-    </body>
-    </html>
+    </body></html>
     """
 
 # ---------------- ADD PROPERTY ----------------
@@ -369,23 +326,37 @@ async def save_property(request: Request, title: str = Form(...), location: str 
             res = cloudinary.uploader.upload(file.file)
             uploaded_urls.append(res.get("url"))
         except: pass
-    new_prop = models.Property(title=title, location=location, price=price, description=description, image=json.dumps(uploaded_urls), category=category)
+    # Default status is "Available"
+    new_prop = models.Property(title=title, location=location, price=price, description=description, image=json.dumps(uploaded_urls), category=category, status="Available")
     db.add(new_prop)
     db.commit()
     return RedirectResponse(url="/", status_code=303)
 
-# ---------------- EDIT PROPERTY ----------------
+# ---------------- EDIT PROPERTY (WITH STATUS UPDATE) ----------------
 @app.get("/edit-property/{pid}", response_class=HTMLResponse)
 def edit_property_form(pid: int, request: Request, db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/admin", status_code=303)
     p = db.query(models.Property).filter(models.Property.id == pid).first()
+    
+    # Status Dropdown Logic
+    options = ["Available", "Sold", "Rented"]
+    status_options = ""
+    for opt in options:
+        selected = "selected" if p.status == opt else ""
+        status_options += f'<option value="{opt}" {selected}>{opt}</option>'
+
     return f"""
     <!DOCTYPE html><html>{HTML_HEAD}<body>
     <div class="container mt-5"><div class="card shadow p-4 mx-auto" style="max-width: 600px;">
     <h3>Edit Property</h3>
     <form action="/edit-property/{pid}" method="post">
     <label>Title</label><input name="title" class="form-control mb-2" value="{p.title}" required>
-    <label>Price</label><input name="price" class="form-control mb-2" value="{p.price}" required>
+    
+    <div class="row mb-2">
+        <div class="col"><label>Price</label><input name="price" class="form-control" value="{p.price}" required></div>
+        <div class="col"><label class="fw-bold text-danger">Status</label><select name="status" class="form-select">{status_options}</select></div>
+    </div>
+
     <label>Location</label><input name="location" class="form-control mb-2" value="{p.location}" required>
     <label>Description</label><textarea name="description" class="form-control mb-3" rows="5">{p.description}</textarea>
     <button type="submit" class="btn btn-warning w-100">Update</button>
@@ -393,7 +364,7 @@ def edit_property_form(pid: int, request: Request, db: Session = Depends(get_db)
     """
 
 @app.post("/edit-property/{pid}")
-def update_property(pid: int, request: Request, title: str = Form(...), price: str = Form(...), location: str = Form(...), description: str = Form(...), db: Session = Depends(get_db)):
+def update_property(pid: int, request: Request, title: str = Form(...), price: str = Form(...), location: str = Form(...), description: str = Form(...), status: str = Form(...), db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/admin", status_code=303)
     p = db.query(models.Property).filter(models.Property.id == pid).first()
     if p:
@@ -401,6 +372,7 @@ def update_property(pid: int, request: Request, title: str = Form(...), price: s
         p.price = price
         p.location = location
         p.description = description
+        p.status = status # Update status
         db.commit()
     return RedirectResponse(url=f"/property/{pid}", status_code=303)
 
