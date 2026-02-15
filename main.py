@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Form, Depends, Request, UploadFile, File
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from database import engine, SessionLocal
@@ -20,9 +20,9 @@ import cloudinary.uploader
 # 1. CLOUDINARY SETUP (PASTE YOUR KEYS HERE!) 
 # ---------------------------------------------------------
 cloudinary.config( 
-  cloud_name = "YOUR_CLOUD_NAME", 
-  api_key = "YOUR_API_KEY", 
-  api_secret = "YOUR_API_SECRET",
+  cloud_name = "dmqqvdspe", 
+  api_key = "581944738912421", 
+  api_secret = "w_lE8Dc6xPoUKrzF_5JrPaPHJhY",
   secure = True
 )
 
@@ -396,4 +396,20 @@ def admin_login(request: Request):
     <input type="password" name="password" class="form-control mb-2" placeholder="Pass">
     <button class="btn btn-primary w-100">Login</button>
     </form></div></div></body></html>
+    """
+
+# -----------------------------------------------------------
+# 🔥 DATABASE RESET TOOL (RUN THIS ONCE)
+# -----------------------------------------------------------
+@app.get("/reset-db", response_class=HTMLResponse)
+def reset_database():
+    # 1. Drop the table to clear old schema
+    models.Base.metadata.drop_all(bind=engine)
+    # 2. Recreate table with new schema (including 'status')
+    models.Base.metadata.create_all(bind=engine)
+    return """
+    <h1 style='color:green; text-align:center; margin-top:50px;'>
+        Database Reset Successful! <br>
+        <a href='/'>Go to Home</a>
+    </h1>
     """
