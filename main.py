@@ -4,7 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from database import engine, SessionLocal
 import models
-from models import Property # Import from models.py instead of defining it here
+# ⚡ FIX: Import Property from models, do not define it here again
+from models import Property 
 from auth import router as auth_router
 from typing import Optional, List
 import shutil
