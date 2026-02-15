@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Form, Depends, Request, UploadFile, File
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from database import engine, SessionLocal
@@ -104,7 +104,7 @@ HTML_HEAD = """
         .bg-rent { background-color: #17a2b8; }
         .bg-buy { background-color: #6610f2; }
         
-        /* NEW: SOLD BADGE */
+        /* SOLD BADGE */
         .sold-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.7); display: flex; align-items: center; justify-content: center;
@@ -117,6 +117,14 @@ HTML_HEAD = """
         }
         
         .whatsapp-float { position: fixed; width: 55px; height: 55px; bottom: 80px; right: 20px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 28px; z-index: 100; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); }
+        
+        /* Map Container */
+        .map-container {
+            overflow: hidden; padding-bottom: 56.25%; position: relative; height: 0; border-radius: 10px; margin-top: 20px;
+        }
+        .map-container iframe {
+            left: 0; top: 0; height: 100%; width: 100%; position: absolute; border: none;
+        }
     </style>
 </head>
 """
@@ -236,7 +244,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
     </html>
     """
 
-# ---------------- PROPERTY DETAILS ----------------
+# ---------------- PROPERTY DETAILS (WITH MAP) ----------------
 @app.get("/property/{pid}", response_class=HTMLResponse)
 def property_details(pid: int, db: Session = Depends(get_db)):
     p = db.query(models.Property).filter(models.Property.id == pid).first()
@@ -252,12 +260,17 @@ def property_details(pid: int, db: Session = Depends(get_db)):
     message = f"Hi, I am interested in {p.title} at {p.location}. Is it available?"
     wa_link = f"https://wa.me/918999338010?text={urllib.parse.quote(message)}"
 
-    # Status Badge Logic
+    # Status Badge
     status_badge = ""
     if p.status == "Sold":
         status_badge = '<span class="badge bg-danger ms-2">SOLD OUT</span>'
     elif p.status == "Rented":
         status_badge = '<span class="badge bg-primary ms-2">RENTED</span>'
+
+    # MAP GENERATION
+    # We take the location (e.g., "Virar West") and embed it in a Google Maps iframe
+    map_query = urllib.parse.quote(p.location)
+    google_map_embed = f'<div class="map-container"><iframe src="https://maps.google.com/maps?q={map_query}&t=&z=14&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe></div>'
 
     return f"""
     <!DOCTYPE html><html>{HTML_HEAD}<body>
@@ -270,7 +283,19 @@ def property_details(pid: int, db: Session = Depends(get_db)):
                         <button class="carousel-control-prev" type="button" data-bs-target="#propCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
                         <button class="carousel-control-next" type="button" data-bs-target="#propCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
                     </div>
+                    
+                    <div class="mt-4">
+                        <h4>Property Details</h4>
+                        <p style="white-space: pre-line; color:#555;">{p.description}</p>
+                    </div>
+
+                    <div class="mt-4">
+                        <h4>Location</h4>
+                        <p class="text-muted"><i class="fas fa-map-marker-alt"></i> {p.location}</p>
+                        {google_map_embed}
+                    </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="card shadow-sm p-4 border-0">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -278,10 +303,6 @@ def property_details(pid: int, db: Session = Depends(get_db)):
                         </div>
                         <h2>{p.title}</h2>
                         <h3 class="text-success fw-bold mb-3">₹ {p.price}</h3>
-                        <p class="text-muted"><i class="fas fa-map-marker-alt"></i> {p.location}</p>
-                        <hr>
-                        <h5>Description</h5>
-                        <p style="white-space: pre-line;">{p.description}</p>
                         <div class="d-none d-md-block">
                             <a href="{wa_link}" class="btn btn-success w-100 mb-2 btn-lg"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
                             <a href="tel:+918999338010" class="btn btn-outline-dark w-100"><i class="fas fa-phone"></i> Call Agent</a>
@@ -310,7 +331,7 @@ def add_property_form(request: Request):
     <label class="form-label">Title</label><input name="title" class="form-control mb-3" required>
     <div class="row mb-3"><div class="col"><label class="form-label">Type</label><select name="category" class="form-select"><option value="Buy">Sell</option><option value="Rent">Rent</option></select></div>
     <div class="col"><label class="form-label">Price</label><input name="price" class="form-control" required></div></div>
-    <label class="form-label">Location</label><input name="location" class="form-control mb-3" required>
+    <label class="form-label">Location (e.g. Global City, Virar)</label><input name="location" class="form-control mb-3" required>
     <label class="form-label">Description</label><textarea name="description" class="form-control mb-3" rows="4"></textarea>
     <label class="fw-bold form-label">Photos (Max 5)</label><input type="file" name="image_files" class="form-control mb-3" accept="image/*" multiple required>
     <button type="submit" class="btn btn-primary w-100">Submit</button>
@@ -326,19 +347,17 @@ async def save_property(request: Request, title: str = Form(...), location: str 
             res = cloudinary.uploader.upload(file.file)
             uploaded_urls.append(res.get("url"))
         except: pass
-    # Default status is "Available"
     new_prop = models.Property(title=title, location=location, price=price, description=description, image=json.dumps(uploaded_urls), category=category, status="Available")
     db.add(new_prop)
     db.commit()
     return RedirectResponse(url="/", status_code=303)
 
-# ---------------- EDIT PROPERTY (WITH STATUS UPDATE) ----------------
+# ---------------- EDIT PROPERTY ----------------
 @app.get("/edit-property/{pid}", response_class=HTMLResponse)
 def edit_property_form(pid: int, request: Request, db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/admin", status_code=303)
     p = db.query(models.Property).filter(models.Property.id == pid).first()
     
-    # Status Dropdown Logic
     options = ["Available", "Sold", "Rented"]
     status_options = ""
     for opt in options:
@@ -351,12 +370,10 @@ def edit_property_form(pid: int, request: Request, db: Session = Depends(get_db)
     <h3>Edit Property</h3>
     <form action="/edit-property/{pid}" method="post">
     <label>Title</label><input name="title" class="form-control mb-2" value="{p.title}" required>
-    
     <div class="row mb-2">
         <div class="col"><label>Price</label><input name="price" class="form-control" value="{p.price}" required></div>
         <div class="col"><label class="fw-bold text-danger">Status</label><select name="status" class="form-select">{status_options}</select></div>
     </div>
-
     <label>Location</label><input name="location" class="form-control mb-2" value="{p.location}" required>
     <label>Description</label><textarea name="description" class="form-control mb-3" rows="5">{p.description}</textarea>
     <button type="submit" class="btn btn-warning w-100">Update</button>
@@ -372,7 +389,7 @@ def update_property(pid: int, request: Request, title: str = Form(...), price: s
         p.price = price
         p.location = location
         p.description = description
-        p.status = status # Update status
+        p.status = status 
         db.commit()
     return RedirectResponse(url=f"/property/{pid}", status_code=303)
 
@@ -398,18 +415,9 @@ def admin_login(request: Request):
     </form></div></div></body></html>
     """
 
-# -----------------------------------------------------------
-# 🔥 DATABASE RESET TOOL (RUN THIS ONCE)
-# -----------------------------------------------------------
+# ---------------- DB RESET UTILITY ----------------
 @app.get("/reset-db", response_class=HTMLResponse)
 def reset_database():
-    # 1. Drop the table to clear old schema
     models.Base.metadata.drop_all(bind=engine)
-    # 2. Recreate table with new schema (including 'status')
     models.Base.metadata.create_all(bind=engine)
-    return """
-    <h1 style='color:green; text-align:center; margin-top:50px;'>
-        Database Reset Successful! <br>
-        <a href='/'>Go to Home</a>
-    </h1>
-    """
+    return "<h1 style='color:green; text-align:center; margin-top:50px;'>Database Reset Successful! <br> <a href='/'>Go to Home</a></h1>"
