@@ -10,5 +10,6 @@ class Property(Base):
     price = Column(String)
     description = Column(String)
     image = Column(String)
-    category = Column(String)  # Buy / Rent
-    status = Column(String, default="Available") # NEW: Available, Sold, Rented
+    category = Column(String)
+    status = Column(String, default="Available")
+    video_url = Column(String, nullable=True) # NEW: YouTube Link

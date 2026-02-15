@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from database import engine, SessionLocal
 import models
+from models import Property # Import from models.py instead of defining it here
 from auth import router as auth_router
 from typing import Optional, List
 import shutil
@@ -27,22 +28,7 @@ cloudinary.config(
   secure = True
 )
 
-# --- DATABASE SETUP (Updated Model) ---
-from sqlalchemy import Column, Integer, String
-from database import Base
-
-class Property(Base):
-    __tablename__ = "properties"
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    location = Column(String)
-    price = Column(String)
-    description = Column(String)
-    image = Column(String)
-    category = Column(String)  # Buy / Rent
-    status = Column(String, default="Available") 
-    video_url = Column(String, nullable=True) # NEW: YouTube Link
-
+# --- DATABASE SETUP ---
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
