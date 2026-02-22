@@ -451,6 +451,7 @@ def property_details(pid: int, db: Session = Depends(get_db)):
     """
 
 # ---------------- ADD & EDIT FORMS ----------------
+# ---------------- ADD PROPERTY (FORM & SAVE) ----------------
 @app.get("/add-property", response_class=HTMLResponse)
 def add_property_form(request: Request):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/login", status_code=303)
@@ -477,12 +478,11 @@ def add_property_form(request: Request):
     </form></div></div>
 
     <script>
-        const dt = new DataTransfer(); // Holds the accumulated files
+        const dt = new DataTransfer(); 
         const input = document.getElementById('photoInput');
         const preview = document.getElementById('filePreview');
 
         input.addEventListener('change', function(e) {{
-            // Add new files to the DataTransfer object
             for(let i = 0; i < this.files.length; i++) {{
                 if(dt.items.length < 5) {{
                     dt.items.add(this.files[i]);
@@ -492,10 +492,8 @@ def add_property_form(request: Request):
                 }}
             }}
             
-            // Overwrite the input's files with our accumulated list
             this.files = dt.files;
             
-            // Update the text preview below the button
             preview.innerHTML = "";
             for(let i = 0; i < this.files.length; i++) {{
                 preview.innerHTML += "<li class='text-success mb-1'><i class='fas fa-check-circle me-2'></i>" + this.files[i].name + "</li>";
@@ -505,32 +503,19 @@ def add_property_form(request: Request):
     </body></html>
     """
 
-@app.get("/edit-property/{pid}", response_class=HTMLResponse)
-def edit_property_form(pid: int, request: Request, db: Session = Depends(get_db)):
+@app.post("/add-property")
+async def save_property(request: Request, title: str = Form(...), location: str = Form(...), price: str = Form(...), description: str = Form(...), category: str = Form(...), video_url: Optional[str] = Form(None), image_files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/login", status_code=303)
-    p = db.query(Property).filter(Property.id == pid).first()
-    
-    options = ["Available", "Sold", "Rented"]
-    status_options = "".join([f'<option value="{opt}" {"selected" if p.status == opt else ""}>{opt}</option>' for opt in options])
-
-    return f"""
-    <!DOCTYPE html><html>{HTML_HEAD}<body class="bg-light">
-    <nav class="navbar"><div class="container"><a class="navbar-brand" href="/dashboard"><i class="fas fa-arrow-left me-2"></i> Back to Dashboard</a></div></nav>
-    <div class="container mt-5 mb-5"><div class="card shadow-sm p-4 mx-auto border-0" style="max-width: 650px; border-radius:12px;">
-    <h3 class="mb-4 fw-bold text-dark"><i class="fas fa-edit text-warning me-2"></i>Edit Property</h3>
-    <form action="/edit-property/{pid}" method="post">
-    <label class="form-label fw-bold text-muted small">Property Title</label><input name="title" class="form-control mb-3 bg-light" value="{p.title}" required>
-    <div class="row mb-3">
-        <div class="col"><label class="form-label fw-bold text-muted small">Price</label><input name="price" class="form-control bg-light" value="{p.price}" required></div>
-        <div class="col"><label class="fw-bold text-danger form-label small">Update Status</label><select name="status" class="form-select bg-light border-danger">{status_options}</select></div>
-    </div>
-    <label class="form-label fw-bold text-muted small">Location</label><input name="location" class="form-control mb-3 bg-light" value="{p.location}" required>
-    <label class="form-label fw-bold text-muted small">YouTube Video Link</label><input name="video_url" class="form-control mb-3 bg-light" value="{p.video_url or ''}">
-    <label class="form-label fw-bold text-muted small">Full Description</label><textarea name="description" class="form-control mb-4 bg-light" rows="6">{p.description}</textarea>
-    <button type="submit" class="btn btn-warning w-100 py-2 fw-bold fs-5 text-dark">Save Changes</button>
-    </form></div></div></body></html>
-    """
-
+    uploaded_urls = []
+    for file in image_files:
+        try:
+            res = cloudinary.uploader.upload(file.file)
+            uploaded_urls.append(res.get("url"))
+        except: pass
+    new_prop = Property(title=title, location=location, price=price, description=description, image=json.dumps(uploaded_urls), category=category, status="Available", video_url=video_url)
+    db.add(new_prop)
+    db.commit()
+    return RedirectResponse(url="/dashboard", status_code=303)
 @app.post("/edit-property/{pid}")
 def update_property(pid: int, request: Request, title: str = Form(...), price: str = Form(...), location: str = Form(...), description: str = Form(...), status: str = Form(...), video_url: Optional[str] = Form(None), db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/login", status_code=303)
