@@ -66,6 +66,16 @@ HTML_HEAD = """
 <head>
     <title>Vajrai Properties | Modern Living</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏢</text></svg>">
+    
+    <meta name="description" content="Find your dream home in Virar, Vasai, and Mumbai. Premium flats, commercial spaces, and trusted real estate services.">
+    <meta property="og:title" content="Vajrai Properties | Virar-Vasai Real Estate">
+    <meta property="og:description" content="100+ Happy Clients. Buy, sell, or rent your property with the most trusted agents in the region. Click to view our latest listings.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -142,8 +152,6 @@ HTML_HEAD = """
     </style>
 </head>
 """
-
-# ---------------- HOME PAGE ----------------
 # ---------------- HOME PAGE ----------------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db), category: Optional[str] = None, location: Optional[str] = None):
