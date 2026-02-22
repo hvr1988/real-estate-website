@@ -80,40 +80,44 @@ HTML_HEAD = """
         body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; padding-bottom: 60px; }
         
         /* Navbar Upgrade */
-        .navbar { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 15px 0; }
-        .navbar-brand { font-weight: 700; color: #0f172a; font-size: 1.5rem; letter-spacing: -0.5px; }
+        .navbar { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 12px 0; }
+        .navbar-brand { font-weight: 700; color: #0f172a; font-size: 1.4rem; letter-spacing: -0.5px; }
         .nav-link { color: #475569; font-weight: 500; margin-left: 20px; transition: 0.3s; }
         .nav-link:hover { color: #0d6efd; }
         
-        /* Hero Section Upgrade */
+        /* Hero Section Upgrade - COMPACT SIZE */
         .hero {
             background: linear-gradient(to bottom, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
-            background-size: cover; background-position: center; height: 45vh; min-height: 400px;
+            background-size: cover; background-position: center; 
+            height: 25vh; /* Reduced height */
+            min-height: 280px; /* Reduced to stop it from being massive */
             display: flex; align-items: center; justify-content: center; text-align: center; color: white;
-            padding-bottom: 40px; /* Make room for overlapping search bar */
+            padding-bottom: 30px; 
         }
-        .hero h1 { font-size: 2.8rem; font-weight: 700; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .hero p.lead { font-size: 1rem; margin-bottom: 15px !important; }
         
-        /* Glassmorphism Option Cards */
+        /* Glassmorphism Option Cards - COMPACT SIZE */
         .option-card {
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 20px 15px; margin: 5px;
-            color: white; transition: all 0.3s ease; cursor: pointer; min-height: 130px;
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 10px; margin: 0 5px;
+            color: white; transition: all 0.3s ease; cursor: pointer; 
+            min-height: 90px; /* Shrunk down so they fit in a smaller banner */
             display: flex; flex-direction: column; justify-content: center;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
-        .option-card:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-5px); border-color: rgba(255,255,255,0.4); }
-        .option-icon { font-size: 2.5rem; margin-bottom: 15px; color: #38bdf8; }
+        .option-card:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-3px); border-color: rgba(255,255,255,0.4); }
+        .option-icon { font-size: 1.6rem; margin-bottom: 5px; color: #38bdf8; }
         
         /* Overlapping Search Bar */
         .search-container {
-            margin-top: -45px; /* Pulls the bar up over the hero */
+            margin-top: -35px; /* Adjusted overlap for smaller banner */
             position: relative;
             z-index: 10;
         }
         .search-card {
             background: white; border-radius: 12px; border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12); padding: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12); padding: 8px;
         }
         
         /* Property Cards */
@@ -126,16 +130,16 @@ HTML_HEAD = """
         .bg-buy { background-color: #8b5cf6; }
         
         /* Services Buttons with FontAwesome */
-        .services-container { text-align: center; padding: 20px; margin: 40px auto; max-width: 1000px; }
-        .services-container h3 { color: #0f172a; margin-bottom: 30px; font-size: 1.6rem; font-weight: 600; }
+        .services-container { text-align: center; padding: 10px 20px; margin: 20px auto; max-width: 1000px; }
+        .services-container h3 { color: #0f172a; margin-bottom: 20px; font-size: 1.4rem; font-weight: 600; }
         .service-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
         .btn-service { 
-            background: white; color: #475569; padding: 14px 28px; border-radius: 50px; 
-            text-decoration: none; font-weight: 500; font-size: 0.95rem; border: 1px solid #e2e8f0; 
+            background: white; color: #475569; padding: 12px 24px; border-radius: 50px; 
+            text-decoration: none; font-weight: 500; font-size: 0.9rem; border: 1px solid #e2e8f0; 
             transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            display: flex; align-items: center; gap: 10px;
+            display: flex; align-items: center; gap: 8px;
         }
-        .btn-service i { font-size: 1.2rem; color: #0d6efd; }
+        .btn-service i { font-size: 1.1rem; color: #0d6efd; }
         .btn-service:hover { background: #0f172a; color: white; border-color: #0f172a; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15); }
         .btn-service:hover i { color: #38bdf8; }
         
@@ -144,7 +148,6 @@ HTML_HEAD = """
     </style>
 </head>
 """
-
 # ---------------- HOME PAGE ----------------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db), category: Optional[str] = None, location: Optional[str] = None):
