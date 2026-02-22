@@ -66,6 +66,7 @@ def get_youtube_embed(url):
     return None
 
 # --- CSS & STYLING ---
+# --- CSS & STYLING ---
 HTML_HEAD = """
 <head>
     <title>Vajrai Properties | Modern Living</title>
@@ -77,63 +78,69 @@ HTML_HEAD = """
 
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; padding-bottom: 60px; }
-        .navbar { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 10px 0; }
-        .navbar-brand { font-weight: 700; color: #2c3e50; font-size: 1.4rem; }
-        .nav-link { color: #555; font-weight: 500; margin-left: 15px; }
         
+        /* Navbar Upgrade */
+        .navbar { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 15px 0; }
+        .navbar-brand { font-weight: 700; color: #0f172a; font-size: 1.5rem; letter-spacing: -0.5px; }
+        .nav-link { color: #475569; font-weight: 500; margin-left: 20px; transition: 0.3s; }
+        .nav-link:hover { color: #0d6efd; }
+        
+        /* Hero Section Upgrade */
         .hero {
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
-            background-size: cover; background-position: center; height: 30vh; min-height: 250px;
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+            background-size: cover; background-position: center; height: 45vh; min-height: 400px;
             display: flex; align-items: center; justify-content: center; text-align: center; color: white;
+            padding-bottom: 40px; /* Make room for overlapping search bar */
         }
-        .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; }
+        .hero h1 { font-size: 2.8rem; font-weight: 700; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         
+        /* Glassmorphism Option Cards */
         .option-card {
-            background: rgba(255,255,255,0.15); backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; padding: 15px; margin: 5px;
-            color: white; transition: 0.3s; cursor: pointer; min-height: 120px;
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 20px 15px; margin: 5px;
+            color: white; transition: all 0.3s ease; cursor: pointer; min-height: 130px;
             display: flex; flex-direction: column; justify-content: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
-        .option-card:hover { background: rgba(255,255,255,0.25); transform: translateY(-3px); }
-        .option-icon { font-size: 2rem; margin-bottom: 10px; color: #00d2ff; }
+        .option-card:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-5px); border-color: rgba(255,255,255,0.4); }
+        .option-icon { font-size: 2.5rem; margin-bottom: 15px; color: #38bdf8; }
         
-        .property-card { border: none; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s; }
-        .property-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .card-img-top { height: 200px; object-fit: cover; }
-        
-        .badge-category { position: absolute; top: 10px; left: 10px; padding: 4px 12px; border-radius: 20px; color: white; font-size: 0.75rem; text-transform: uppercase; z-index: 10; }
-        .bg-rent { background-color: #17a2b8; }
-        .bg-buy { background-color: #6610f2; }
-        
-        .sold-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.7); display: flex; align-items: center; justify-content: center; z-index: 5;
+        /* Overlapping Search Bar */
+        .search-container {
+            margin-top: -45px; /* Pulls the bar up over the hero */
+            position: relative;
+            z-index: 10;
         }
-        .sold-badge {
-            background: #dc3545; color: white; font-weight: 800; padding: 10px 30px;
-            font-size: 1.5rem; transform: rotate(-15deg); border: 4px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-transform: uppercase;
+        .search-card {
+            background: white; border-radius: 12px; border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12); padding: 10px;
         }
         
-        .whatsapp-float { position: fixed; width: 55px; height: 55px; bottom: 80px; right: 20px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 28px; z-index: 100; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); }
+        /* Property Cards */
+        .property-card { border: none; border-radius: 16px; overflow: hidden; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: 0.3s; border: 1px solid #f1f5f9; }
+        .property-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .card-img-top { height: 220px; object-fit: cover; }
         
-        .map-container, .video-container {
-            overflow: hidden; padding-bottom: 56.25%; position: relative; height: 0; border-radius: 10px; margin-top: 20px; background: #eee;
-        }
-        .map-container iframe, .video-container iframe {
-            left: 0; top: 0; height: 100%; width: 100%; position: absolute; border: none;
-        }
-
-        /* Calculator Styles */
-        .calc-box { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #ddd; margin-top: 20px; }
-        .calc-result { font-size: 1.5rem; color: #28a745; font-weight: bold; text-align: center; margin-top: 10px; }
-
-        /* Services Buttons */
-        .services-container { text-align: center; padding: 20px; margin: 20px auto 40px auto; max-width: 1000px; }
-        .services-container h3 { color: #334155; margin-bottom: 20px; font-size: 1.5rem; }
+        .badge-category { position: absolute; top: 15px; left: 15px; padding: 6px 16px; border-radius: 30px; color: white; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .bg-rent { background-color: #0ea5e9; }
+        .bg-buy { background-color: #8b5cf6; }
+        
+        /* Services Buttons with FontAwesome */
+        .services-container { text-align: center; padding: 20px; margin: 40px auto; max-width: 1000px; }
+        .services-container h3 { color: #0f172a; margin-bottom: 30px; font-size: 1.6rem; font-weight: 600; }
         .service-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .btn-service { background: #ffffff; color: #0f172a; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.95rem; border: 1px solid #cbd5e1; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .btn-service:hover { background: #0d6efd; color: white; border-color: #0d6efd; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2); }
+        .btn-service { 
+            background: white; color: #475569; padding: 14px 28px; border-radius: 50px; 
+            text-decoration: none; font-weight: 500; font-size: 0.95rem; border: 1px solid #e2e8f0; 
+            transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .btn-service i { font-size: 1.2rem; color: #0d6efd; }
+        .btn-service:hover { background: #0f172a; color: white; border-color: #0f172a; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15); }
+        .btn-service:hover i { color: #38bdf8; }
+        
+        .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; z-index: 100; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); transition: 0.3s; }
+        .whatsapp-float:hover { transform: scale(1.1); }
     </style>
 </head>
 """
@@ -159,9 +166,9 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         admin_controls = ""
         if is_admin:
             admin_controls = f"""
-            <div class="d-flex gap-2 mt-2">
-                <a href="/edit-property/{p.id}" class="btn btn-warning btn-sm w-50"><i class="fas fa-edit"></i> Edit</a>
-                <a href="/delete-property/{p.id}" class="btn btn-danger btn-sm w-50" onclick="return confirm('Delete?')"><i class="fas fa-trash"></i></a>
+            <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                <a href="/edit-property/{p.id}" class="btn btn-outline-secondary btn-sm w-50"><i class="fas fa-edit"></i> Edit</a>
+                <a href="/delete-property/{p.id}" class="btn btn-outline-danger btn-sm w-50" onclick="return confirm('Delete this property?')"><i class="fas fa-trash"></i></a>
             </div>
             """
 
@@ -176,7 +183,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
 
         cards_html += f"""
         <div class="col-md-4 mb-4">
-            <div class="property-card">
+            <div class="property-card h-100 d-flex flex-column">
                 <div style="position:relative">
                     <span class="badge-category {badge_color}">{p.category}</span>
                     {sold_overlay}
@@ -184,11 +191,11 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
                         <img src="{thumbnail}" class="card-img-top" alt="Property Image" loading="lazy">
                     </a>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title text-truncate" style="font-size:1.1rem;">{p.title}</h5>
-                    <p class="text-muted small mb-1"><i class="fas fa-map-marker-alt"></i> {p.location}</p>
-                    <h5 class="text-success fw-bold">₹ {p.price}</h5>
-                    <a href="/property/{p.id}" class="btn btn-outline-primary w-100 btn-sm mt-2">View Details</a>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-truncate fw-bold mb-2" style="font-size:1.15rem; color:#0f172a;">{p.title}</h5>
+                    <p class="text-muted small mb-3"><i class="fas fa-map-marker-alt text-danger me-1"></i> {p.location}</p>
+                    <h4 class="text-primary fw-bold mb-3 mt-auto">₹ {p.price}</h4>
+                    <a href="/property/{p.id}" class="btn btn-primary w-100 fw-bold">View Details</a>
                     {admin_controls}
                 </div>
             </div>
@@ -197,20 +204,20 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
 
     if is_admin:
         nav_links = """
-        <a class="nav-link fw-bold text-primary" href="/add-property"><i class="fas fa-plus-circle"></i> Add Property</a>
-        <a class="nav-link text-danger" href="/logout">Logout</a>
+        <a class="nav-link fw-bold text-primary" href="/add-property"><i class="fas fa-plus-circle me-1"></i> Add Property</a>
+        <a class="nav-link text-danger" href="/logout"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
         """
     else:
-        nav_links = '<a class="nav-link" href="/admin">Admin Login</a>'
+        nav_links = '<a class="nav-link" href="/admin"><i class="fas fa-user-lock me-1"></i> Admin</a>'
 
     return f"""
     <!DOCTYPE html>
     <html>
     {HTML_HEAD}
     <body>
-        <nav class="navbar navbar-expand-lg">
+        <nav class="navbar navbar-expand-lg sticky-top">
             <div class="container">
-                <a class="navbar-brand" href="/"><i class="fas fa-building"></i> Vajrai Properties</a>
+                <a class="navbar-brand" href="/"><i class="fas fa-building text-primary me-2"></i>Vajrai Properties</a>
                 <div class="d-flex align-items-center">
                     <a class="nav-link" href="/">Home</a>
                     {nav_links}
@@ -221,20 +228,34 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         <div class="hero">
             <div class="container">
                 <h1>Find Your Dream Home</h1>
-                <div class="row justify-content-center mt-4">
-                    <div class="col-4 col-md-3"><a href="/?category=Buy" style="text-decoration:none;"><div class="option-card"><i class="fas fa-home option-icon"></i><h3>BUY</h3></div></a></div>
-                    <div class="col-4 col-md-3"><a href="https://wa.me/918999338010?text=I%20want%20to%20sell%20my%20property" target="_blank" style="text-decoration:none;"><div class="option-card"><i class="fas fa-hand-holding-usd option-icon"></i><h3>SELL</h3></div></a></div>
-                    <div class="col-4 col-md-3"><a href="/?category=Rent" style="text-decoration:none;"><div class="option-card"><i class="fas fa-key option-icon"></i><h3>RENT</h3></div></a></div>
+                <p class="lead mb-4" style="color: #cbd5e1;">Premium Flats & Commercial Spaces in Virar-Vasai</p>
+                <div class="row justify-content-center mt-2">
+                    <div class="col-4 col-md-3"><a href="/?category=Buy" style="text-decoration:none;"><div class="option-card"><i class="fas fa-home option-icon"></i><h3 class="h5 fw-bold m-0">BUY</h3></div></a></div>
+                    <div class="col-4 col-md-3"><a href="https://wa.me/918999338010?text=I%20want%20to%20sell%20my%20property" target="_blank" style="text-decoration:none;"><div class="option-card"><i class="fas fa-tags option-icon"></i><h3 class="h5 fw-bold m-0">SELL</h3></div></a></div>
+                    <div class="col-4 col-md-3"><a href="/?category=Rent" style="text-decoration:none;"><div class="option-card"><i class="fas fa-key option-icon"></i><h3 class="h5 fw-bold m-0">RENT</h3></div></a></div>
                 </div>
             </div>
         </div>
 
-        <div class="container mt-4">
-            <div class="card p-3 shadow-sm mx-auto" style="max-width:800px; border-radius:10px;">
-                <form action="/" method="get" class="row g-2">
-                    <div class="col-md-3"><select name="category" class="form-select bg-light"><option value="All">All Types</option><option value="Buy">Buy</option><option value="Rent">Rent</option></select></div>
-                    <div class="col-md-6"><input type="text" name="location" class="form-control bg-light" placeholder="Search Location (e.g. Virar)..."></div>
-                    <div class="col-md-3"><button type="submit" class="btn btn-primary w-100">Search</button></div>
+        <div class="container search-container">
+            <div class="card search-card mx-auto" style="max-width:850px;">
+                <form action="/" method="get" class="row g-2 align-items-center p-2">
+                    <div class="col-md-3">
+                        <select name="category" class="form-select form-select-lg border-0 bg-light">
+                            <option value="All">All Types</option>
+                            <option value="Buy">Buy</option>
+                            <option value="Rent">Rent</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 border-start border-end d-none d-md-block">
+                        <input type="text" name="location" class="form-control form-control-lg border-0 shadow-none" placeholder="Search Location (e.g. Virar West)...">
+                    </div>
+                    <div class="col-md-6 d-md-none mt-2 mb-2">
+                        <input type="text" name="location" class="form-control form-control-lg bg-light border-0" placeholder="Search Location...">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold"><i class="fas fa-search me-2"></i>Search</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -242,24 +263,38 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         <div class="services-container">
             <h3>Financial & Legal Services</h3>
             <div class="service-buttons">
-                <a href="https://wa.me/918999338010?text=I want to know about Home Loans" class="btn-service" target="_blank">🏦 Home Loan</a>
-                <a href="https://wa.me/918999338010?text=I want to know about Mortgage Loans" class="btn-service" target="_blank">💰 Mortgage Loan</a>
-                <a href="https://wa.me/918999338010?text=I need help with Property Registration" class="btn-service" target="_blank">📝 Property Registration</a>
-                <a href="https://wa.me/918999338010?text=I need help making a Rent Agreement" class="btn-service" target="_blank">🤝 Rent Agreement</a>
+                <a href="https://wa.me/918999338010?text=I want to know about Home Loans" class="btn-service" target="_blank">
+                    <i class="fas fa-building-columns"></i> Home Loan
+                </a>
+                <a href="https://wa.me/918999338010?text=I want to know about Mortgage Loans" class="btn-service" target="_blank">
+                    <i class="fas fa-file-invoice-dollar"></i> Mortgage Loan
+                </a>
+                <a href="https://wa.me/918999338010?text=I need help with Property Registration" class="btn-service" target="_blank">
+                    <i class="fas fa-stamp"></i> Property Registration
+                </a>
+                <a href="https://wa.me/918999338010?text=I need help making a Rent Agreement" class="btn-service" target="_blank">
+                    <i class="fas fa-file-signature"></i> Rent Agreement
+                </a>
             </div>
         </div>
 
-        <div class="container mt-5">
-            <h3 class="mb-4" style="font-weight:600;">Latest Properties</h3>
+        <div class="container mt-5 pt-3">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <h3 style="font-weight:700; color:#0f172a; margin:0;">Latest Properties</h3>
+                <a href="/" class="text-primary text-decoration-none fw-bold">View All <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
             <div class="row">{cards_html}</div>
         </div>
 
         <a href="https://wa.me/918999338010" class="whatsapp-float" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        <footer class="text-center pt-5 pb-4 text-muted"><p>© 2026 Vajrai Properties. All Rights Reserved.</p></footer>
+        
+        <footer class="text-center pt-5 pb-4 mt-5 border-top" style="background-color: #f8fafc;">
+            <p class="text-muted fw-bold mb-1">© 2026 Vajrai Properties. All Rights Reserved.</p>
+            <p class="small text-muted">Serving Virar, Vasai & Mumbai Regions</p>
+        </footer>
     </body>
     </html>
     """
-
 # ---------------- PROPERTY DETAILS (ALL FEATURES) ----------------
 @app.get("/property/{pid}", response_class=HTMLResponse)
 def property_details(pid: int, db: Session = Depends(get_db)):
