@@ -66,7 +66,6 @@ def get_youtube_embed(url):
     return None
 
 # --- CSS & STYLING ---
-# --- CSS & STYLING ---
 HTML_HEAD = """
 <head>
     <title>Vajrai Properties | Modern Living</title>
@@ -154,6 +153,12 @@ HTML_HEAD = """
         
         .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; z-index: 100; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); transition: 0.3s; }
         .whatsapp-float:hover { transform: scale(1.1); }
+        
+        /* Calculator Styles */
+        .calc-box { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #ddd; margin-top: 20px; }
+        .calc-result { font-size: 1.5rem; color: #28a745; font-weight: bold; text-align: center; margin-top: 10px; }
+        .map-container, .video-container { overflow: hidden; padding-bottom: 56.25%; position: relative; height: 0; border-radius: 10px; margin-top: 20px; background: #eee; }
+        .map-container iframe, .video-container iframe { left: 0; top: 0; height: 100%; width: 100%; position: absolute; border: none; }
     </style>
 </head>
 """
@@ -365,7 +370,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
     </body>
     </html>
     """
-    """
+
 # ---------------- PROPERTY DETAILS (ALL FEATURES) ----------------
 @app.get("/property/{pid}", response_class=HTMLResponse)
 def property_details(pid: int, db: Session = Depends(get_db)):
