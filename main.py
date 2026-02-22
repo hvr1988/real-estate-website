@@ -72,82 +72,92 @@ HTML_HEAD = """
     <title>Vajrai Properties | Modern Living</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; padding-bottom: 60px; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
         
-        /* Navbar Upgrade */
+        /* Navbar */
         .navbar { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 12px 0; }
         .navbar-brand { font-weight: 700; color: #0f172a; font-size: 1.4rem; letter-spacing: -0.5px; }
         .nav-link { color: #475569; font-weight: 500; margin-left: 20px; transition: 0.3s; }
         .nav-link:hover { color: #0d6efd; }
         
-        /* Hero Section Upgrade - COMPACT SIZE */
+        /* Hero Section */
         .hero {
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
             background-size: cover; background-position: center; 
-            height: 25vh; /* Reduced height */
-            min-height: 280px; /* Reduced to stop it from being massive */
+            height: 25vh; min-height: 280px;
             display: flex; align-items: center; justify-content: center; text-align: center; color: white;
             padding-bottom: 30px; 
         }
         .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .hero p.lead { font-size: 1rem; margin-bottom: 15px !important; }
+        .hero p.lead { font-size: 1rem; color: #cbd5e1; margin-bottom: 15px !important; }
         
-        /* Glassmorphism Option Cards - COMPACT SIZE */
+        /* Option Cards */
         .option-card {
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 10px; margin: 0 5px;
             color: white; transition: all 0.3s ease; cursor: pointer; 
-            min-height: 90px; /* Shrunk down so they fit in a smaller banner */
-            display: flex; flex-direction: column; justify-content: center;
+            min-height: 90px; display: flex; flex-direction: column; justify-content: center;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
         .option-card:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-3px); border-color: rgba(255,255,255,0.4); }
         .option-icon { font-size: 1.6rem; margin-bottom: 5px; color: #38bdf8; }
         
-        /* Overlapping Search Bar */
-        .search-container {
-            margin-top: -35px; /* Adjusted overlap for smaller banner */
-            position: relative;
-            z-index: 10;
-        }
-        .search-card {
-            background: white; border-radius: 12px; border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12); padding: 8px;
-        }
+        /* Search Bar */
+        .search-container { margin-top: -35px; position: relative; z-index: 10; }
+        .search-card { background: white; border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.12); padding: 8px; }
         
-        /* Property Cards */
-        .property-card { border: none; border-radius: 16px; overflow: hidden; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: 0.3s; border: 1px solid #f1f5f9; }
-        .property-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        .card-img-top { height: 220px; object-fit: cover; }
+        /* Alternating Background Section */
+        .bg-light-alt { background-color: #f1f5f9; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
         
-        .badge-category { position: absolute; top: 15px; left: 15px; padding: 6px 16px; border-radius: 30px; color: white; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .bg-rent { background-color: #0ea5e9; }
-        .bg-buy { background-color: #8b5cf6; }
-        
-        /* Services Buttons with FontAwesome */
-        .services-container { text-align: center; padding: 10px 20px; margin: 20px auto; max-width: 1000px; }
-        .services-container h3 { color: #0f172a; margin-bottom: 20px; font-size: 1.4rem; font-weight: 600; }
+        /* Services Buttons */
+        .services-container { text-align: center; padding: 40px 20px; max-width: 1000px; margin: 0 auto; }
+        .services-container h3 { color: #0f172a; margin-bottom: 25px; font-size: 1.5rem; font-weight: 700; }
         .service-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
         .btn-service { 
             background: white; color: #475569; padding: 12px 24px; border-radius: 50px; 
-            text-decoration: none; font-weight: 500; font-size: 0.9rem; border: 1px solid #e2e8f0; 
+            text-decoration: none; font-weight: 500; font-size: 0.95rem; border: 1px solid #cbd5e1; 
             transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             display: flex; align-items: center; gap: 8px;
         }
         .btn-service i { font-size: 1.1rem; color: #0d6efd; }
         .btn-service:hover { background: #0f172a; color: white; border-color: #0f172a; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15); }
         .btn-service:hover i { color: #38bdf8; }
+
+        /* Property Cards */
+        .property-card { border: none; border-radius: 16px; overflow: hidden; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: 0.3s; border: 1px solid #f1f5f9; }
+        .property-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .card-img-top { height: 220px; object-fit: cover; }
+        .badge-category { position: absolute; top: 15px; left: 15px; padding: 6px 16px; border-radius: 30px; color: white; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .bg-rent { background-color: #0ea5e9; }
+        .bg-buy { background-color: #8b5cf6; }
+        .sold-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.7); display: flex; align-items: center; justify-content: center; z-index: 5; }
+        .sold-badge { background: #dc3545; color: white; font-weight: 800; padding: 10px 30px; font-size: 1.5rem; transform: rotate(-15deg); border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-transform: uppercase; }
+        
+        /* Trust Features */
+        .feature-box { padding: 20px; text-align: center; transition: 0.3s; border-radius: 12px; }
+        .feature-box:hover { background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transform: translateY(-5px); }
+        .feature-box i { font-size: 2.5rem; color: #0d6efd; margin-bottom: 15px; }
+        .feature-box h5 { font-weight: 700; color: #0f172a; }
+
+        /* Mega Footer */
+        .mega-footer { background-color: #0f172a; color: #94a3b8; padding: 60px 0 20px 0; margin-top: 60px; }
+        .mega-footer h5 { color: white; font-weight: 600; margin-bottom: 20px; }
+        .mega-footer a { color: #94a3b8; text-decoration: none; transition: 0.3s; }
+        .mega-footer a:hover { color: #38bdf8; padding-left: 5px; }
+        .mega-footer ul li { margin-bottom: 10px; }
+        .footer-bottom { border-top: 1px solid #1e293b; margin-top: 40px; padding-top: 20px; font-size: 0.85rem; }
         
         .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; z-index: 100; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); transition: 0.3s; }
         .whatsapp-float:hover { transform: scale(1.1); }
     </style>
 </head>
 """
+
 # ---------------- HOME PAGE ----------------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db), category: Optional[str] = None, location: Optional[str] = None):
@@ -231,7 +241,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         <div class="hero">
             <div class="container">
                 <h1>Find Your Dream Home</h1>
-                <p class="lead mb-4" style="color: #cbd5e1;">Premium Flats & Commercial Spaces in Virar-Vasai</p>
+                <p class="lead mb-4">Premium Flats & Commercial Spaces in Virar-Vasai</p>
                 <div class="row justify-content-center mt-2">
                     <div class="col-4 col-md-3"><a href="/?category=Buy" style="text-decoration:none;"><div class="option-card"><i class="fas fa-home option-icon"></i><h3 class="h5 fw-bold m-0">BUY</h3></div></a></div>
                     <div class="col-4 col-md-3"><a href="https://wa.me/918999338010?text=I%20want%20to%20sell%20my%20property" target="_blank" style="text-decoration:none;"><div class="option-card"><i class="fas fa-tags option-icon"></i><h3 class="h5 fw-bold m-0">SELL</h3></div></a></div>
@@ -244,7 +254,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
             <div class="card search-card mx-auto" style="max-width:850px;">
                 <form action="/" method="get" class="row g-2 align-items-center p-2">
                     <div class="col-md-3">
-                        <select name="category" class="form-select form-select-lg border-0 bg-light">
+                        <select name="category" class="form-select form-select-lg border-0 bg-light text-secondary fw-bold">
                             <option value="All">All Types</option>
                             <option value="Buy">Buy</option>
                             <option value="Rent">Rent</option>
@@ -263,21 +273,23 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
             </div>
         </div>
 
-        <div class="services-container">
-            <h3>Financial & Legal Services</h3>
-            <div class="service-buttons">
-                <a href="https://wa.me/918999338010?text=I want to know about Home Loans" class="btn-service" target="_blank">
-                    <i class="fas fa-building-columns"></i> Home Loan
-                </a>
-                <a href="https://wa.me/918999338010?text=I want to know about Mortgage Loans" class="btn-service" target="_blank">
-                    <i class="fas fa-file-invoice-dollar"></i> Mortgage Loan
-                </a>
-                <a href="https://wa.me/918999338010?text=I need help with Property Registration" class="btn-service" target="_blank">
-                    <i class="fas fa-stamp"></i> Property Registration
-                </a>
-                <a href="https://wa.me/918999338010?text=I need help making a Rent Agreement" class="btn-service" target="_blank">
-                    <i class="fas fa-file-signature"></i> Rent Agreement
-                </a>
+        <div class="bg-light-alt mt-5">
+            <div class="services-container">
+                <h3>Financial & Legal Services</h3>
+                <div class="service-buttons">
+                    <a href="https://wa.me/918999338010?text=I want to know about Home Loans" class="btn-service" target="_blank">
+                        <i class="fas fa-building-columns"></i> Home Loan
+                    </a>
+                    <a href="https://wa.me/918999338010?text=I want to know about Mortgage Loans" class="btn-service" target="_blank">
+                        <i class="fas fa-file-invoice-dollar"></i> Mortgage Loan
+                    </a>
+                    <a href="https://wa.me/918999338010?text=I need help with Property Registration" class="btn-service" target="_blank">
+                        <i class="fas fa-stamp"></i> Property Registration
+                    </a>
+                    <a href="https://wa.me/918999338010?text=I need help making a Rent Agreement" class="btn-service" target="_blank">
+                        <i class="fas fa-file-signature"></i> Rent Agreement
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -286,17 +298,73 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
                 <h3 style="font-weight:700; color:#0f172a; margin:0;">Latest Properties</h3>
                 <a href="/" class="text-primary text-decoration-none fw-bold">View All <i class="fas fa-arrow-right ms-1"></i></a>
             </div>
-            <div class="row">{cards_html}</div>
+            <div class="row">
+                {cards_html if cards_html else '<div class="col-12 text-center text-muted my-5 py-5"><i class="fas fa-home fa-3x mb-3 text-light"></i><br>No properties listed yet.</div>'}
+            </div>
         </div>
 
-        <a href="https://wa.me/918999338010" class="whatsapp-float" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        
-        <footer class="text-center pt-5 pb-4 mt-5 border-top" style="background-color: #f8fafc;">
-            <p class="text-muted fw-bold mb-1">© 2026 Vajrai Properties. All Rights Reserved.</p>
-            <p class="small text-muted">Serving Virar, Vasai & Mumbai Regions</p>
+        <div class="container my-5 pt-5 border-top">
+            <div class="row text-center">
+                <div class="col-md-4 mb-4">
+                    <div class="feature-box">
+                        <i class="fas fa-handshake"></i>
+                        <h5>Trusted Agent</h5>
+                        <p class="text-muted small">100+ Happy Clients placed in their dream homes across the region.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-box">
+                        <i class="fas fa-tags"></i>
+                        <h5>Best Deals</h5>
+                        <p class="text-muted small">Directly negotiated from owner listings to ensure you get the best market rate.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-box">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h5>Prime Locations</h5>
+                        <p class="text-muted small">Properties strategically located near major stations, top schools, and markets.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mega-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mb-4 pe-md-5">
+                        <h5 class="text-white mb-3"><i class="fas fa-building text-primary me-2"></i>Vajrai Properties</h5>
+                        <p class="small text-muted" style="line-height: 1.8;">Your premier real estate partner. We specialize in helping families and businesses find the perfect property that fits their budget and lifestyle goals.</p>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <h5>Quick Links</h5>
+                        <ul class="list-unstyled small">
+                            <li><a href="/"><i class="fas fa-angle-right text-primary me-2"></i> Home</a></li>
+                            <li><a href="/?category=Buy"><i class="fas fa-angle-right text-primary me-2"></i> Buy Property</a></li>
+                            <li><a href="/?category=Rent"><i class="fas fa-angle-right text-primary me-2"></i> Rent Property</a></li>
+                            <li><a href="/admin"><i class="fas fa-angle-right text-primary me-2"></i> Admin Login</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <h5>Contact Us</h5>
+                        <ul class="list-unstyled small">
+                            <li class="mb-3 d-flex"><i class="fas fa-map-marker-alt text-primary me-3 mt-1"></i> <span>Office No 24, Galaxy Avenue,<br>Virar West - 401303</span></li>
+                            <li class="mb-3 d-flex"><i class="fas fa-phone-alt text-primary me-3 mt-1"></i> <span>+91 8999338010</span></li>
+                            <li class="mb-3 d-flex"><i class="fab fa-whatsapp text-primary me-3 mt-1"></i> <span>24/7 WhatsApp Support</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center">
+                    <div>© 2026 Vajrai Properties. All Rights Reserved.</div>
+                    <div class="mt-2 mt-md-0">Serving Virar, Vasai & Mumbai</div>
+                </div>
+            </div>
         </footer>
+
+        <a href="https://wa.me/918999338010" class="whatsapp-float" target="_blank"><i class="fab fa-whatsapp"></i></a>
     </body>
     </html>
+    """
     """
 # ---------------- PROPERTY DETAILS (ALL FEATURES) ----------------
 @app.get("/property/{pid}", response_class=HTMLResponse)
