@@ -4,23 +4,19 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from database import engine, SessionLocal
 import models
-# ⚡ FIX: Import Property from models, do not define it here again
 from models import Property 
 from auth import router as auth_router
 from typing import Optional, List
 import shutil
 import os
-import uuid
 import json
 import urllib.parse
 import re
-
-# --- NEW IMPORTS FOR CLOUDINARY ---
 import cloudinary
 import cloudinary.uploader
 
 # ---------------------------------------------------------
-# 1. CLOUDINARY SETUP (PASTE YOUR KEYS HERE!) 
+# 1. CLOUDINARY SETUP 
 # ---------------------------------------------------------
 cloudinary.config( 
   cloud_name = "dmqqvdspe", 
@@ -63,7 +59,6 @@ def optimize_url(url, width=500):
 # --- HELPER: EXTRACT YOUTUBE ID ---
 def get_youtube_embed(url):
     if not url: return None
-    # Regex to find video ID from youtube.com or youtu.be
     regex = r"(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})"
     match = re.search(regex, url)
     if match:
@@ -88,7 +83,7 @@ HTML_HEAD = """
         
         .hero {
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
-            background-size: cover; background-position: center; height: 40vh; min-height: 350px;
+            background-size: cover; background-position: center; height: 30vh; min-height: 250px;
             display: flex; align-items: center; justify-content: center; text-align: center; color: white;
         }
         .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; }
@@ -132,6 +127,13 @@ HTML_HEAD = """
         /* Calculator Styles */
         .calc-box { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #ddd; margin-top: 20px; }
         .calc-result { font-size: 1.5rem; color: #28a745; font-weight: bold; text-align: center; margin-top: 10px; }
+
+        /* Services Buttons */
+        .services-container { text-align: center; padding: 20px; margin: 20px auto 40px auto; max-width: 1000px; }
+        .services-container h3 { color: #334155; margin-bottom: 20px; font-size: 1.5rem; }
+        .service-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .btn-service { background: #ffffff; color: #0f172a; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.95rem; border: 1px solid #cbd5e1; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .btn-service:hover { background: #0d6efd; color: white; border-color: #0d6efd; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2); }
     </style>
 </head>
 """
@@ -237,6 +239,16 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
             </div>
         </div>
 
+        <div class="services-container">
+            <h3>Financial & Legal Services</h3>
+            <div class="service-buttons">
+                <a href="https://wa.me/918999338010?text=I want to know about Home Loans" class="btn-service" target="_blank">🏦 Home Loan</a>
+                <a href="https://wa.me/918999338010?text=I want to know about Mortgage Loans" class="btn-service" target="_blank">💰 Mortgage Loan</a>
+                <a href="https://wa.me/918999338010?text=I need help with Property Registration" class="btn-service" target="_blank">📝 Property Registration</a>
+                <a href="https://wa.me/918999338010?text=I need help making a Rent Agreement" class="btn-service" target="_blank">🤝 Rent Agreement</a>
+            </div>
+        </div>
+
         <div class="container mt-5">
             <h3 class="mb-4" style="font-weight:600;">Latest Properties</h3>
             <div class="row">{cards_html}</div>
@@ -254,7 +266,6 @@ def property_details(pid: int, db: Session = Depends(get_db)):
     p = db.query(Property).filter(Property.id == pid).first()
     if not p: return HTMLResponse("<h1>Property Not Found</h1>", status_code=404)
 
-    # 1. Images
     images = parse_images(p.image)
     carousel_items = ""
     for index, img_url in enumerate(images):
@@ -262,7 +273,6 @@ def property_details(pid: int, db: Session = Depends(get_db)):
         optimized_img = optimize_url(img_url, width=800)
         carousel_items += f'<div class="carousel-item {active_class}"><img src="{optimized_img}" class="d-block w-100 rounded" style="height: 400px; object-fit: cover;" alt="Property Image"></div>'
 
-    # 2. Similar Properties Logic
     similar_props = db.query(Property).filter(Property.category == p.category, Property.id != p.id).limit(3).all()
     similar_html = ""
     for sp in similar_props:
@@ -280,7 +290,6 @@ def property_details(pid: int, db: Session = Depends(get_db)):
         """
     if not similar_html: similar_html = "<p class='text-muted'>No other properties in this category yet.</p>"
 
-    # 3. Map & Video Logic
     map_query = urllib.parse.quote(p.location)
     google_map_embed = f'<div class="map-container"><iframe src="https://maps.google.com/maps?q={map_query}&t=&z=14&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe></div>'
     
@@ -480,21 +489,3 @@ def reset_database():
     models.Base.metadata.drop_all(bind=engine)
     models.Base.metadata.create_all(bind=engine)
     return "<h1 style='color:green; text-align:center; margin-top:50px;'>Database Reset Successful!<br><a href='/'>Go Home</a></h1>"
-
-<div class="services-container">
-    <h3>Financial & Legal Services</h3>
-    <div class="service-buttons">
-        <a href="https://wa.me/918999338010?text=I want to know about Home Loans" class="btn-service" target="_blank">
-            🏦 Home Loan
-        </a>
-        <a href="https://wa.me/918999338010?text=I want to know about Mortgage Loans" class="btn-service" target="_blank">
-            💰 Mortgage Loan
-        </a>
-        <a href="https://wa.me/918999338010?text=I need help with Property Registration" class="btn-service" target="_blank">
-            📝 Property Registration
-        </a>
-        <a href="https://wa.me/918999338010?text=I need help making a Rent Agreement" class="btn-service" target="_blank">
-            🤝 Rent Agreement
-        </a>
-    </div>
-</div>
