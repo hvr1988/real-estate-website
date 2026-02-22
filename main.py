@@ -480,3 +480,21 @@ def reset_database():
     models.Base.metadata.drop_all(bind=engine)
     models.Base.metadata.create_all(bind=engine)
     return "<h1 style='color:green; text-align:center; margin-top:50px;'>Database Reset Successful!<br><a href='/'>Go Home</a></h1>"
+
+<div class="services-container">
+    <h3>Financial & Legal Services</h3>
+    <div class="service-buttons">
+        <a href="https://wa.me/918999338010?text=I want to know about Home Loans" class="btn-service" target="_blank">
+            🏦 Home Loan
+        </a>
+        <a href="https://wa.me/918999338010?text=I want to know about Mortgage Loans" class="btn-service" target="_blank">
+            💰 Mortgage Loan
+        </a>
+        <a href="https://wa.me/918999338010?text=I need help with Property Registration" class="btn-service" target="_blank">
+            📝 Property Registration
+        </a>
+        <a href="https://wa.me/918999338010?text=I need help making a Rent Agreement" class="btn-service" target="_blank">
+            🤝 Rent Agreement
+        </a>
+    </div>
+</div>

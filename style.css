@@ -54,20 +54,25 @@ body {
     color: white;
 }
 
-/* --- HERO SECTION WITH SEARCH --- */
+/* Update your existing .hero class */
 .hero {
-    background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8)), 
-                url("https://images.unsplash.com/photo-1600596542815-2495db98dada?ixlib=rb-4.0.3");
-    background-size: cover;
-    background-position: center;
-    height: 600px;
+    /* Change height to vh (viewport height) to make it proportional */
+    height: 30vh; 
+    min-height: 250px; /* Prevents it from getting too small on tiny phones */
+    
+    /* Keep your existing background, display, and flex settings */
+    background: #4a4a4a; /* Or your current background image/color */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    text-align: center;
-    padding: 0 20px;
-    color: white;
+    /* ... rest of your existing hero styles ... */
+}
+
+/* Optional: Make the Buy/Sell/Rent buttons slightly more compact */
+.hero .action-box { /* Or whatever class you used for those 3 boxes */
+    padding: 15px 30px; 
+    margin: 10px;
 }
 
 .hero h1 {
@@ -154,4 +159,46 @@ body {
     text-align: center;
     padding: 40px 20px;
     margin-top: auto;
+}
+
+/* Add this to your style.css */
+.services-container {
+    text-align: center;
+    padding: 20px;
+    margin: 20px auto 40px auto;
+    max-width: 1000px;
+}
+
+.services-container h3 {
+    color: #334155;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.service-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap; /* Allows them to stack on mobile */
+}
+
+.btn-service {
+    background: #ffffff;
+    color: #0f172a;
+    padding: 12px 24px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid #cbd5e1;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.btn-service:hover {
+    background: #0d6efd; /* Matches your theme's blue */
+    color: white;
+    border-color: #0d6efd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
 }
