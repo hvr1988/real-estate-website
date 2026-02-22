@@ -144,6 +144,7 @@ HTML_HEAD = """
 """
 
 # ---------------- HOME PAGE ----------------
+# ---------------- HOME PAGE ----------------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db), category: Optional[str] = None, location: Optional[str] = None):
     
@@ -165,8 +166,9 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
         if p.status == "Sold": sold_overlay = '<div class="sold-overlay"><div class="sold-badge">SOLD</div></div>'
         elif p.status == "Rented": sold_overlay = '<div class="sold-overlay"><div class="sold-badge bg-primary">RENTED</div></div>'
 
+        # CHANGED: Added col-md-6, col-lg-4, col-xl-3 to make it responsive and fit 4 cards on large screens
         cards_html += f"""
-        <div class="col-md-4 mb-4">
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
             <div class="property-card h-100 d-flex flex-column">
                 <div style="position:relative">
                     <span class="badge-category {badge_color}">{p.category}</span>
@@ -252,7 +254,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
             </div>
         </div>
 
-        <div class="container mt-5 pt-3">
+        <div class="container-fluid px-4 px-xl-5 mt-5 pt-3">
             <div class="d-flex justify-content-between align-items-end mb-4">
                 <h3 style="font-weight:700; color:#0f172a; margin:0;">Latest Properties</h3>
                 <a href="/" class="text-primary text-decoration-none fw-bold">View All <i class="fas fa-arrow-right ms-1"></i></a>
@@ -292,7 +294,6 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
     </body>
     </html>
     """
-
 # ---------------- ADMIN DASHBOARD ----------------
 @app.get("/dashboard", response_class=HTMLResponse)
 def admin_dashboard(request: Request, db: Session = Depends(get_db)):
