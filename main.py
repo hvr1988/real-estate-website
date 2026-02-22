@@ -466,24 +466,44 @@ def add_property_form(request: Request):
     <label class="form-label fw-bold text-muted small">Location (e.g. Virar West)</label><input name="location" class="form-control mb-3 bg-light" required>
     <label class="form-label fw-bold text-muted small">YouTube Video Link (Optional)</label><input name="video_url" class="form-control mb-3 bg-light" placeholder="https://youtu.be/...">
     <label class="form-label fw-bold text-muted small">Full Description</label><textarea name="description" class="form-control mb-4 bg-light" rows="5"></textarea>
-    <label class="fw-bold form-label text-primary"><i class="fas fa-images me-1"></i> Upload Photos (Max 5)</label><input type="file" name="image_files" class="form-control mb-4" accept="image/*" multiple required>
-    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold fs-5">Publish Property</button>
-    </form></div></div></body></html>
-    """
+    
+    <label class="fw-bold form-label text-primary"><i class="fas fa-images me-1"></i> Upload Photos (Max 5)</label>
+    <div class="alert alert-secondary small py-2 mb-2"><i class="fas fa-info-circle me-1"></i> <b>Tip:</b> You can hold CTRL to select multiple photos at once, or add them one by one.</div>
+    <input type="file" id="photoInput" name="image_files" class="form-control mb-2" accept="image/*" multiple required>
+    
+    <ul id="filePreview" class="small mb-4 px-3" style="list-style-type: none; padding-left: 0;"></ul>
 
-@app.post("/add-property")
-async def save_property(request: Request, title: str = Form(...), location: str = Form(...), price: str = Form(...), description: str = Form(...), category: str = Form(...), video_url: Optional[str] = Form(None), image_files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
-    if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/login", status_code=303)
-    uploaded_urls = []
-    for file in image_files:
-        try:
-            res = cloudinary.uploader.upload(file.file)
-            uploaded_urls.append(res.get("url"))
-        except: pass
-    new_prop = Property(title=title, location=location, price=price, description=description, image=json.dumps(uploaded_urls), category=category, status="Available", video_url=video_url)
-    db.add(new_prop)
-    db.commit()
-    return RedirectResponse(url="/dashboard", status_code=303)
+    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold fs-5">Publish Property</button>
+    </form></div></div>
+
+    <script>
+        const dt = new DataTransfer(); // Holds the accumulated files
+        const input = document.getElementById('photoInput');
+        const preview = document.getElementById('filePreview');
+
+        input.addEventListener('change', function(e) {{
+            // Add new files to the DataTransfer object
+            for(let i = 0; i < this.files.length; i++) {{
+                if(dt.items.length < 5) {{
+                    dt.items.add(this.files[i]);
+                }} else {{
+                    alert("Maximum limit reached. You can only upload up to 5 photos.");
+                    break;
+                }}
+            }}
+            
+            // Overwrite the input's files with our accumulated list
+            this.files = dt.files;
+            
+            // Update the text preview below the button
+            preview.innerHTML = "";
+            for(let i = 0; i < this.files.length; i++) {{
+                preview.innerHTML += "<li class='text-success mb-1'><i class='fas fa-check-circle me-2'></i>" + this.files[i].name + "</li>";
+            }}
+        }});
+    </script>
+    </body></html>
+    """
 
 @app.get("/edit-property/{pid}", response_class=HTMLResponse)
 def edit_property_form(pid: int, request: Request, db: Session = Depends(get_db)):
