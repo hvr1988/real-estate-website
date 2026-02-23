@@ -83,14 +83,10 @@ HTML_HEAD = """
 
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        
-        /* Navbar */
         .navbar { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 12px 0; }
         .navbar-brand { font-weight: 700; color: #0f172a; font-size: 1.4rem; letter-spacing: -0.5px; }
         .nav-link { color: #475569; font-weight: 500; margin-left: 20px; transition: 0.3s; }
         .nav-link:hover, .nav-link.active { color: #0d6efd; }
-        
-        /* Hero Section */
         .hero {
             background: linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
             background-size: cover; background-position: center; height: 25vh; min-height: 280px;
@@ -98,8 +94,6 @@ HTML_HEAD = """
         }
         .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .hero p.lead { font-size: 1rem; color: #cbd5e1; margin-bottom: 15px !important; }
-        
-        /* Option Cards & Search */
         .option-card {
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 10px; margin: 0 5px;
@@ -109,16 +103,12 @@ HTML_HEAD = """
         .option-icon { font-size: 1.6rem; margin-bottom: 5px; color: #38bdf8; }
         .search-container { margin-top: -35px; position: relative; z-index: 10; }
         .search-card { background: white; border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.12); padding: 8px; }
-        
-        /* Services & Features */
         .bg-light-alt { background-color: #f1f5f9; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
         .btn-service { background: white; color: #475569; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 500; font-size: 0.95rem; border: 1px solid #cbd5e1; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
         .btn-service:hover { background: #0f172a; color: white; border-color: #0f172a; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15); }
         .feature-box { padding: 20px; text-align: center; transition: 0.3s; border-radius: 12px; }
         .feature-box:hover { background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transform: translateY(-5px); }
         .feature-box i { font-size: 2.5rem; color: #0d6efd; margin-bottom: 15px; }
-
-        /* Property Cards */
         .property-card { border: none; border-radius: 16px; overflow: hidden; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: 0.3s; border: 1px solid #f1f5f9; }
         .property-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
         .card-img-top { height: 220px; object-fit: cover; }
@@ -127,24 +117,14 @@ HTML_HEAD = """
         .bg-buy { background-color: #8b5cf6; }
         .sold-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.7); display: flex; align-items: center; justify-content: center; z-index: 5; }
         .sold-badge { background: #dc3545; color: white; font-weight: 800; padding: 10px 30px; font-size: 1.5rem; transform: rotate(-15deg); border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-transform: uppercase; }
-        
-        /* Sticky Details & Mobile Nav */
         .sticky-sidebar { position: sticky; top: 100px; z-index: 10; }
         .mobile-bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); padding: 12px 15px; display: flex; justify-content: space-between; z-index: 1000; }
         .mobile-bottom-nav .btn { flex: 1; margin: 0 5px; border-radius: 8px; }
-        
-        /* Admin Dashboard UI */
         .admin-stat-card { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         .admin-stat-card h2 { font-weight: 800; margin: 0; color: #0f172a; font-size: 2.5rem; }
         .table-custom { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-top: 20px; }
         .table-custom th { background-color: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; padding: 15px; border-bottom: 2px solid #e2e8f0; }
         .table-custom td { padding: 15px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; color: #334155; }
-
-        /* Footer */
-        .mega-footer { background-color: #0f172a; color: #94a3b8; padding: 60px 0 20px 0; margin-top: 60px; }
-        .mega-footer a { color: #94a3b8; text-decoration: none; transition: 0.3s; }
-        .mega-footer a:hover { color: #38bdf8; padding-left: 5px; }
-        
         .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; z-index: 900; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); transition: 0.3s; }
         .whatsapp-float:hover { transform: scale(1.1); }
         .map-container, .video-container { overflow: hidden; padding-bottom: 56.25%; position: relative; height: 0; border-radius: 10px; margin-top: 20px; background: #eee; }
@@ -152,12 +132,11 @@ HTML_HEAD = """
     </style>
 </head>
 """
+
 # ---------------- HOME PAGE ----------------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db), category: Optional[str] = None, location: Optional[str] = None):
-    
     is_admin = request.cookies.get("admin_token") == "logged_in"
-    
     query = db.query(Property)
     if category and category != "All":
         query = query.filter(Property.category == category)
@@ -169,12 +148,9 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
     for p in properties:
         badge_color = "bg-buy" if p.category == "Buy" else "bg-rent"
         thumbnail = optimize_url(parse_images(p.image)[0], width=400)
-
         sold_overlay = ""
         if p.status == "Sold": sold_overlay = '<div class="sold-overlay"><div class="sold-badge">SOLD</div></div>'
         elif p.status == "Rented": sold_overlay = '<div class="sold-overlay"><div class="sold-badge bg-primary">RENTED</div></div>'
-
-        # CHANGED: Added col-md-6, col-lg-4, col-xl-3 to make it responsive and fit 4 cards on large screens
         cards_html += f"""
         <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
             <div class="property-card h-100 d-flex flex-column">
@@ -209,6 +185,7 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
             <div class="container">
                 <a class="navbar-brand" href="/"><i class="fas fa-building text-primary me-2"></i>Vajrai Properties</a>
                 <div class="d-flex align-items-center">
+                    <a class="nav-link d-none d-md-block" href="mailto:pankaj@vajraiproperties.com"><i class="fas fa-envelope"></i> pankaj@vajraiproperties.com</a>
                     <a class="nav-link active" href="/">Home</a>
                     {nav_links}
                 </div>
@@ -278,40 +255,55 @@ def home(request: Request, db: Session = Depends(get_db), category: Optional[str
             </div>
         </div>
 
-        <footer class="mega-footer">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6 mb-4 pe-md-5">
-                        <h5 class="text-white mb-3"><i class="fas fa-building text-primary me-2"></i>Vajrai Properties</h5>
-                        <p class="small text-muted" style="line-height: 1.8;">Your premier real estate partner in Virar, Vasai & Mumbai Regions.</p>
-                        <div class="mt-4 text-muted small">© 2026 Vajrai Properties. All Rights Reserved.</div>
+        <div class="container mt-5 mb-5">
+            <div class="card shadow-sm p-4 mx-auto border-0" style="max-width: 800px; border-radius: 12px; background: #ffffff;">
+                <h3 class="mb-4 text-center" style="font-weight: 600; color: #2c3e50;">Contact Us</h3>
+                <form action="https://api.web3forms.com/submit" method="POST">
+                    <input type="hidden" name="access_key" value="3d28f323-7f01-46d1-9acf-199f6bec2a04">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Your Name</label>
+                            <input type="text" name="name" class="form-control bg-light" required placeholder="John Doe">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" name="phone" class="form-control bg-light" required placeholder="+91 1234567890">
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-4">
-                        <h5>Contact Us</h5>
-                        <ul class="list-unstyled small">
-                            <li class="mb-3 d-flex"><i class="fas fa-map-marker-alt text-primary me-3 mt-1"></i> <span>Office No 24, Galaxy Avenue,<br>Virar West - 401303</span></li>
-                            <li class="mb-3 d-flex"><i class="fas fa-phone-alt text-primary me-3 mt-1"></i> <span>+91 8999338010</span></li>
-                            <li class="mb-3 d-flex"><i class="fab fa-whatsapp text-primary me-3 mt-1"></i> <span>24/7 WhatsApp Support</span></li>
-                        </ul>
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control bg-light" required placeholder="name@example.com">
                     </div>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea name="message" class="form-control bg-light" rows="4" required placeholder="Hi, I am looking for a property in Virar West..."></textarea>
+                    </div>
+                    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">Send Message <i class="fas fa-paper-plane"></i></button>
+                </form>
             </div>
-        </footer>
+        </div>
 
+        <footer class="text-center pt-5 pb-4 text-muted">
+            <p class="mb-2">
+                <i class="fas fa-envelope"></i> <a href="mailto:pankaj@vajraiproperties.com" style="color: inherit; text-decoration: none;">pankaj@vajraiproperties.com</a>  |  
+                <i class="fas fa-phone"></i> +91 8999338010
+            </p>
+            <p>© 2026 Vajrai Properties. All Rights Reserved.</p>
+        </footer>
         <a href="https://wa.me/918999338010" class="whatsapp-float d-none d-md-flex" target="_blank"><i class="fab fa-whatsapp"></i></a>
     </body>
     </html>
     """
+
 # ---------------- ADMIN DASHBOARD ----------------
 @app.get("/dashboard", response_class=HTMLResponse)
 def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/login", status_code=303)
-    
     properties = db.query(Property).all()
     total = len(properties)
     available = sum(1 for p in properties if p.status == "Available")
     sold = sum(1 for p in properties if p.status == "Sold")
-    
     table_rows = ""
     for p in properties:
         thumb = optimize_url(parse_images(p.image)[0], width=100)
@@ -330,7 +322,6 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
             </td>
         </tr>
         """
-
     return f"""
     <!DOCTYPE html><html>{HTML_HEAD}<body class="bg-light">
     <nav class="navbar navbar-expand-lg sticky-top"><div class="container"><a class="navbar-brand" href="/"><i class="fas fa-building text-primary me-2"></i>Vajrai Admin</a>
@@ -352,12 +343,11 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     </body></html>
     """
 
-# ---------------- PROPERTY DETAILS (STICKY & MOBILE NAV) ----------------
+# ---------------- PROPERTY DETAILS ----------------
 @app.get("/property/{pid}", response_class=HTMLResponse)
 def property_details(pid: int, db: Session = Depends(get_db)):
     p = db.query(Property).filter(Property.id == pid).first()
     if not p: return HTMLResponse("<h1>Property Not Found</h1>", status_code=404)
-
     images = parse_images(p.image)
     carousel_items = ""
     for index, img_url in enumerate(images):
@@ -378,7 +368,6 @@ def property_details(pid: int, db: Session = Depends(get_db)):
     return f"""
     <!DOCTYPE html><html>{HTML_HEAD}<body>
         <nav class="navbar navbar-expand-lg"><div class="container"><a class="navbar-brand" href="/"><i class="fas fa-building text-primary me-2"></i>Vajrai Properties</a><a href="/" class="btn btn-outline-secondary btn-sm rounded-pill px-3"><i class="fas fa-arrow-left me-1"></i> Back</a></div></nav>
-        
         <div class="container mt-4 mb-5 pb-5">
             <div class="row">
                 <div class="col-lg-8 mb-4">
@@ -387,7 +376,6 @@ def property_details(pid: int, db: Session = Depends(get_db)):
                         <button class="carousel-control-prev" type="button" data-bs-target="#propCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon bg-dark rounded-circle p-3"></span></button>
                         <button class="carousel-control-next" type="button" data-bs-target="#propCarousel" data-bs-slide="next"><span class="carousel-control-next-icon bg-dark rounded-circle p-3"></span></button>
                     </div>
-
                     <div class="bg-white p-4 rounded shadow-sm border border-light">
                         <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
                             <li class="nav-item"><button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#details"><i class="fas fa-info-circle me-1"></i> Description</button></li>
@@ -401,7 +389,6 @@ def property_details(pid: int, db: Session = Depends(get_db)):
                         </div>
                     </div>
                 </div>
-
                 <div class="col-lg-4">
                     <div class="sticky-sidebar">
                         <div class="card shadow-sm p-4 border-0 mb-4 bg-white">
@@ -411,13 +398,12 @@ def property_details(pid: int, db: Session = Depends(get_db)):
                             <h2 class="fw-bold text-dark">{p.title}</h2>
                             <p class="text-muted"><i class="fas fa-map-marker-alt text-danger"></i> {p.location}</p>
                             <h2 class="text-primary fw-bold mb-4">₹ {p.price}</h2>
-                            
                             <div class="d-none d-md-block">
                                 <a href="https://wa.me/918999338010?text=Hi, I am interested in {p.title}" class="btn btn-success w-100 mb-3 btn-lg fw-bold"><i class="fab fa-whatsapp me-2"></i> WhatsApp Agent</a>
                                 <a href="tel:+918999338010" class="btn btn-outline-dark w-100 fw-bold"><i class="fas fa-phone-alt me-2"></i> Call Now</a>
+                                <a href="mailto:pankaj@vajraiproperties.com?subject=Inquiry about {p.title}" class="btn btn-outline-primary w-100 mt-2"><i class="fas fa-envelope"></i> Email Agent</a>
                             </div>
                         </div>
-
                         <div class="card shadow-sm p-4 border-0 bg-white">
                             <h5 class="text-center mb-3 fw-bold text-dark"><i class="fas fa-calculator text-primary"></i> EMI Calculator</h5>
                             <label class="small text-muted fw-bold">Loan Amount (₹)</label>
@@ -439,12 +425,10 @@ def property_details(pid: int, db: Session = Depends(get_db)):
                 </div>
             </div>
         </div>
-
         <div class="mobile-bottom-nav d-lg-none">
             <a href="tel:+918999338010" class="btn btn-dark fw-bold py-2"><i class="fas fa-phone-alt me-1"></i> Call Agent</a>
             <a href="https://wa.me/918999338010?text=Interested in {p.title}" class="btn btn-success fw-bold py-2"><i class="fab fa-whatsapp me-1"></i> WhatsApp</a>
         </div>
-
         <script>
             function calcEMI() {{
                 let p = document.getElementById('loanAmt').value;
@@ -460,7 +444,6 @@ def property_details(pid: int, db: Session = Depends(get_db)):
     """
 
 # ---------------- ADD & EDIT FORMS ----------------
-# ---------------- ADD PROPERTY (FORM & SAVE) ----------------
 @app.get("/add-property", response_class=HTMLResponse)
 def add_property_form(request: Request):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/login", status_code=303)
@@ -476,21 +459,15 @@ def add_property_form(request: Request):
     <label class="form-label fw-bold text-muted small">Location (e.g. Virar West)</label><input name="location" class="form-control mb-3 bg-light" required>
     <label class="form-label fw-bold text-muted small">YouTube Video Link (Optional)</label><input name="video_url" class="form-control mb-3 bg-light" placeholder="https://youtu.be/...">
     <label class="form-label fw-bold text-muted small">Full Description</label><textarea name="description" class="form-control mb-4 bg-light" rows="5"></textarea>
-    
     <label class="fw-bold form-label text-primary"><i class="fas fa-images me-1"></i> Upload Photos (Max 5)</label>
-    <div class="alert alert-secondary small py-2 mb-2"><i class="fas fa-info-circle me-1"></i> <b>Tip:</b> You can hold CTRL to select multiple photos at once, or add them one by one.</div>
     <input type="file" id="photoInput" name="image_files" class="form-control mb-2" accept="image/*" multiple required>
-    
     <ul id="filePreview" class="small mb-4 px-3" style="list-style-type: none; padding-left: 0;"></ul>
-
     <button type="submit" class="btn btn-primary w-100 py-2 fw-bold fs-5">Publish Property</button>
     </form></div></div>
-
     <script>
         const dt = new DataTransfer(); 
         const input = document.getElementById('photoInput');
         const preview = document.getElementById('filePreview');
-
         input.addEventListener('change', function(e) {{
             for(let i = 0; i < this.files.length; i++) {{
                 if(dt.items.length < 5) {{
@@ -500,9 +477,7 @@ def add_property_form(request: Request):
                     break;
                 }}
             }}
-            
             this.files = dt.files;
-            
             preview.innerHTML = "";
             for(let i = 0; i < this.files.length; i++) {{
                 preview.innerHTML += "<li class='text-success mb-1'><i class='fas fa-check-circle me-2'></i>" + this.files[i].name + "</li>";
@@ -525,6 +500,7 @@ async def save_property(request: Request, title: str = Form(...), location: str 
     db.add(new_prop)
     db.commit()
     return RedirectResponse(url="/dashboard", status_code=303)
+
 @app.post("/edit-property/{pid}")
 def update_property(pid: int, request: Request, title: str = Form(...), price: str = Form(...), location: str = Form(...), description: str = Form(...), status: str = Form(...), video_url: Optional[str] = Form(None), db: Session = Depends(get_db)):
     if request.cookies.get("admin_token") != "logged_in": return RedirectResponse(url="/login", status_code=303)
