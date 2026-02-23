@@ -548,3 +548,8 @@ def get_sitemap(db: Session = Depends(get_db)):
     sitemap_xml += '</urlset>'
 
     return HTMLResponse(content=sitemap_xml, media_type="application/xml")
+
+@app.get("/robots.txt", response_class=HTMLResponse)
+def robots_txt():
+    content = "User-agent: *\nAllow: /\n\nSitemap: https://vajraiproperties.com/sitemap.xml"
+    return HTMLResponse(content=content, media_type="text/plain")
