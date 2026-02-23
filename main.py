@@ -528,3 +528,23 @@ def reset_database():
     models.Base.metadata.drop_all(bind=engine)
     models.Base.metadata.create_all(bind=engine)
     return "<h1 style='color:green; text-align:center; margin-top:50px;'>Database Reset Successful!<br><a href='/'>Go Home</a></h1>"
+
+# ---------------- SITEMAP GENERATOR ----------------
+@app.get("/sitemap.xml")
+def get_sitemap(db: Session = Depends(get_db)):
+    # Define your static pages
+    pages = ["", "login"]
+    
+    # Get all property IDs to create dynamic links
+    properties = db.query(Property).all()
+    for p in properties:
+        pages.append(f"property/{p.id}")
+
+    # Build the XML structure
+    sitemap_xml = '<?xml version="1.0" encoding="UTF-8"?>'
+    sitemap_xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    for page in pages:
+        sitemap_xml += f'<url><loc>https://vajraiproperties.com/{page}</loc><changefreq>daily</changefreq></url>'
+    sitemap_xml += '</urlset>'
+
+    return HTMLResponse(content=sitemap_xml, media_type="application/xml")
